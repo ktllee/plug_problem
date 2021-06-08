@@ -2,6 +2,24 @@
 last modified: 06/08/21
 
 @author: katie
+
+description:
+    codes to generate a dictionary of plugs and
+    find solutions for sets of plugs
+    
+    gen_dict(max_len) generates a list of plugs by plug size:number of prongs
+    in a dictionary that can be input to plug_solutions.
+    Note that the 0-length plug has only one prong, and all others have two.
+    
+    plug_solutions(dictionary, flip, show) takes a dictionary of plugs and
+    finds all possible solutions.
+    The flip option defaults to true, meaning that flipped solutions
+    are equivalent.  The show option shows progress.
+    
+    solve(max_len, save, show) is essentially a shortcut for
+    plug_solutions(gen_dict(max_len)).
+    If true, the save option saves the results to csv files.
+    If true, the show option prints each solution.
 """
 
 # uses distinct_permutations for possible future needs

@@ -13,3 +13,5 @@ This puzzle was inspired by the question ["Number of ways to arrange pairs of in
 ### Scripts
 
 `original_plugs.py` is code to brute-force solutions with all distinct plugs (no repeats), where plugs are defined by number of prongs and gaps between prongs (and all gaps are equal).
+
+`plug_class.py` contains the classes for plugs/strips to allow for more flexible future codes.  **In Progress.**

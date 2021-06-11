@@ -10,6 +10,8 @@ This puzzle was inspired by the question ["Number of ways to arrange pairs of in
 
 [`solutions`](/solutions) contains lists of solutions for different set of plugs.
 
+[`unused`](/unused) contains code that has been integrated into active code and which no longer need be used.
+
 ### Scripts
 
 `original_plugs.py` is code to brute-force solutions with all distinct plugs (no repeats), where plugs are defined by number of prongs and gaps between prongs (and all gaps are equal).

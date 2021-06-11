@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-last modified: 06/08/21
+last modified: 06/11/21
 
 @author: katie
 
 description:
-    contains classes for plug and strip
+    contains class for plugs
     (for the plug problem where plugs go into strips)
     
     the plug class contains defining information for an individual plug.
@@ -16,17 +16,9 @@ description:
     methods:
         return reversed plug
         reset attributes based on zero_str, clean_ends
-    
-    the strip class contains a list of plugs in order
-    and a dictionary of total number of each type of plug on strip.
-    initiated with a total size and no plugs.
-    represented by current ordered list of plugs.
-    strips with the same list of plugs are equivalent.
-    methods:
-        none
 """
 
-class plug:
+class Plug:
     """ class for plug with defined prongs (any but 0) and gaps (0s)
         must input one of:
             number (int): base 10 equivalent of binary plug, e.g. 5 == '101'
@@ -134,7 +126,7 @@ class plug:
             if other is not plug, return False.
         '''
         
-        if not isinstance(other, plug):
+        if not isinstance(other, Plug):
             return False
         
         if all((self.zero_str == other.zero_str,
@@ -151,7 +143,7 @@ class plug:
             note that this method does not modify current plug.
         '''
         
-        new = plug(zero_str = self.reverse, clean_ends = self.clean_ends)
+        new = Plug(zero_str = self.reverse, clean_ends = self.clean_ends)
         
         return new
         
@@ -165,7 +157,7 @@ class plug:
             returns: None
                 
             resets based on zero_str or given descriptor attribute.
-            always uses clean_ends behavior
+            always uses clean_ends behavior.
             
             note that this method directly modifies current plug.
         '''
@@ -179,15 +171,15 @@ class plug:
         
         # zero_str
         if attribute == 'z':
-            new = plug(zero_str = self.zero_str, clean_ends = self.clean_ends)
+            new = Plug(zero_str = self.zero_str, clean_ends = self.clean_ends)
         
         # number
         elif attribute == 'n':
-            new = plug(number = self.number, clean_ends = self.clean_ends)
+            new = Plug(number = self.number, clean_ends = self.clean_ends)
         
         # classic
         elif attribute == 'c':
-            new = plug(classic = self.classic, clean_ends = self.clean_ends)
+            new = Plug(classic = self.classic, clean_ends = self.clean_ends)
         
         # error if none of the above
         else:
@@ -198,38 +190,105 @@ class plug:
         return
 
 
+#####
 
+# testing
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == '__main__':
+    print('testing Plug class...')
+    
+    # set up some test plugs
+    num = 91
+    zstr = '00xx0xx0x0'
+    clssc = 6
+    
+    corr_dict_num = {
+        'number': 91,
+        'zero_str': '1011011',
+        'classic': None,
+        'clean_ends': True,
+        'length': 7,
+        'prongs': 5,
+        'reverse': '1101101',
+        'symmetrical': False}
+    
+    corr_dict_zstr = {
+        'number': 109,
+        'zero_str': '1101101',
+        'classic': None,
+        'clean_ends': True,
+        'length': 7,
+        'prongs': 5,
+        'reverse': '1011011',
+        'symmetrical': False}
+    
+    corr_dict_clssc = {
+        'number': 33,
+        'zero_str': '100001',
+        'classic': 6,
+        'clean_ends': True,
+        'length': 6,
+        'prongs': 2,
+        'reverse': '100001',
+        'symmetrical': True}
+    
+    corr_dict_ends = {
+        'number': 218,
+        'zero_str': '0011011010',
+        'classic': None,
+        'clean_ends': False,
+        'length': 10,
+        'prongs': 5,
+        'reverse': '0101101100',
+        'symmetrical': False}
+    
+    plug_num = Plug(num)
+    plug_zstr = Plug(zero_str = zstr)
+    plug_clssc = Plug(classic = clssc)
+    plug_ends = Plug(zero_str = zstr, clean_ends = False)
+    plug_flip = plug_num.flip()
+    
+    tester = [('num', plug_num, corr_dict_num),
+              ('zstr', plug_zstr, corr_dict_zstr),
+              ('clssc', plug_clssc, corr_dict_clssc),
+              ('ends', plug_ends, corr_dict_ends),
+              ('flip', plug_flip, corr_dict_zstr)]
+    
+    # init list of failures
+    fails = []
+    
+    for test in tester:
+        print(test[0] + '...')
+        
+        for key in test[2]:
+            if test[1].__dict__[key] != test[2][key]:
+                key_note = key + ', ' + test[0]
+                fails.append(key_note)
+    
+    # testing equivalency
+    print('equivalence...')
+    if plug_flip != plug_zstr:
+        fails.append('equivalence')
+        
+    # testing the reset method
+    print('reset...')
+    plug_ends.clean_ends = True
+    plug_ends.reset()
+    
+    for key in corr_dict_zstr:
+        if plug_ends.__dict__[key] != corr_dict_zstr[key]:
+            key_note = key + ', reset'
+            fails.append(key_note)
+    
+    print('done.')
+    
+    # showing failures
+    print()
+    print('Failed tests:')
+    
+    if fails == []:
+        print('None.')
+        
+    else:
+        for x in fails:
+            print(x)

@@ -45,7 +45,9 @@ class Plug:
                 length (int, total length),
                 prongs (int, number of prongs),
                 reverse (str, representation of the flipped plug),
-                symmetrical (bool, true if reverse = zero_str)
+                symmetrical (bool, true if reverse = zero_str),
+                leading (int, number of leading 0s),
+                trailing (int, number of trailing 0s)
         '''
         
         # raise error if exactly one defining argument not given
@@ -112,6 +114,8 @@ class Plug:
         self.prongs = zero_str.count('1')
         self.reverse = zero_str[::-1]
         self.symmetrical = (self.zero_str == self.reverse)
+        self.leading = self.zero_str.index('1')
+        self.trailing = self.reverse.index('1')
         
         
     def __repr__(self):
@@ -210,7 +214,9 @@ if __name__ == '__main__':
         'length': 7,
         'prongs': 5,
         'reverse': '1101101',
-        'symmetrical': False}
+        'symmetrical': False,
+        'trailing': 0,
+        'leading': 0}
     
     corr_dict_zstr = {
         'number': 109,
@@ -220,7 +226,9 @@ if __name__ == '__main__':
         'length': 7,
         'prongs': 5,
         'reverse': '1011011',
-        'symmetrical': False}
+        'symmetrical': False,
+        'trailing': 0,
+        'leading': 0}
     
     corr_dict_clssc = {
         'number': 33,
@@ -230,7 +238,9 @@ if __name__ == '__main__':
         'length': 6,
         'prongs': 2,
         'reverse': '100001',
-        'symmetrical': True}
+        'symmetrical': True,
+        'trailing': 0,
+        'leading': 0}
     
     corr_dict_ends = {
         'number': 218,
@@ -240,7 +250,9 @@ if __name__ == '__main__':
         'length': 10,
         'prongs': 5,
         'reverse': '0101101100',
-        'symmetrical': False}
+        'symmetrical': False,
+        'trailing': 1,
+        'leading': 2}
     
     plug_num = Plug(num)
     plug_zstr = Plug(zero_str = zstr)

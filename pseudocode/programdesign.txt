@@ -1,0 +1,77 @@
+Design for a program to solve plug puzzles.
+
+If you have a list of plugs (repeated plugs allowed) you can describe
+a solution to the plug puzzle two ways - showing which plug fills each
+slot in the power strip, or as a permutation of the list, since if you
+know the order in which you use the plugs then you can figure out
+which plug fills each slot.  I think the best plan is to look for the
+permutation of the plugs, not which plug fills each slot. There
+are fewer plugs than slots, so the loops will be much shorter.
+
+That suggests that it's important to find a good representation for a
+plug.
+
+This is a plug of length  6 with 3 prongs:
+
+xxxxxx
+x  x x
+
+I think it's useful to think of that plug as the bit string
+
+100101
+
+That happens to represent an integer in base 2. Since the length of
+the plug isn't known in advance, I think we should look at the bits
+from left to right, so that plug "is" the integer
+
+1 + 8 + 32 = 41
+
+It's easy to go back and forth between the bit string and the integer,
+so we can use the integer as the name of the plug and the bit
+representation when we want to add it to the power strip. Python can
+work with the bits by looping over an array of 0s and 1s, or by
+bitwise operations on the integer itself, In particular, specifying
+where to insert a plug in a power strip is just a shift.
+
+I think plugs should always begin and end with prongs, so they are bit
+strings of the form
+
+1????1
+
+That means plug numbers are always odd. Plugs of length n correspond
+to odd numbers between the two prong plug 10...01 = 2^(n-1)+1 and
+11...11 = 2^n - 1. We might want to relax that requirement later, and
+allow leading or trailing 0s, but I think that would be ugly.
+
+This definition covers both the "0" plugs we worried about in the
+stackexchange puzzle. The single prong plug 1 is plug number 1 and
+the two prong plug 11 is plug number 1 + 2 = 3.
+
+With this definition, plug 41 is not the same as its reverse,
+
+101001 = 1 + 4 + 32 = 37
+
+That suggests that we redefine the idea of a plug puzzle solution to
+require that the plugs have a direction and can't be reversed. That's
+not an issue with the two prong plugs we have been working with so
+far.
+
+With this structure a list of plugs is just a list of
+positive odd integers, repeats allowed.
+
+With that list you can calculate the number of prongs, so the length
+of the power strip. For each possible permutation of the plug list,
+loop to try inserting each plug in turn at the leftmost empty
+slot. When you insert a plug later slots will fill up too.
+
+I suspect that most permutations fail, either because the end of the
+plug you try to insert is past the end of the power strip, or some
+later needed slot is filled.  (That means you might be able to handle
+longer lists by generating permutations on the fly with the standard
+recursive algorithm instead of invoking Python's list of permutations,)
+
+When you succeed you have a solution. You can record the permutation
+with just the plug numbers in their order, or the bit strings if you
+don't want the reader to have to decode the numbers. You can print out
+the power strip using the plug number and its index in the permutation
+as labels for each slot.

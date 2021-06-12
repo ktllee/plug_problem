@@ -14,6 +14,8 @@ This puzzle was inspired by the question ["Number of ways to arrange pairs of in
 
 [`solutions`](/solutions) contains lists of solutions for different set of plugs.
 
+[`pseudocode`](/pseudocode) contains pseudocode and general brainstorming.
+
 [`unused`](/unused) contains code that has been integrated into active code and which no longer need be used.
 
 ### Active Scripts

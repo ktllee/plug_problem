@@ -22,6 +22,7 @@ class Plug:
     """ class for plug with defined prongs (any but 0) and gaps (0s)
         must input one of:
             number (int): base 10 equivalent of binary plug, e.g. 5 == '101'
+            num_str (str): base 10 with leading zeros, e.g. '05' = '0101'
             zero_str (str): string representation with 0s, e.g. 'x0y' == '101'
             classic (int): total length for 1-2 prong plug, e.g. 3 == '101'
         optional:
@@ -36,23 +37,24 @@ class Plug:
     
     def __init__(self,
                  number = None,
+                 num_str = None,
                  zero_str = None,
                  classic = None,
                  clean_ends = True):
-        ''' intitalizes from one of number, zero_str, or classic.
+        ''' intitalizes from one of number, num_str, zero_str, or classic.
             also initializes:
-                number and zero_str if not given,
+                number, num_str, and zero_str if not given,
                 length (int, total length),
                 prongs (int, number of prongs),
                 reverse (str, representation of the flipped plug),
                 symmetrical (bool, true if reverse = zero_str),
                 leading (int, number of leading 0s),
-                trailing (int, number of trailing 0s),
-                num_str (str, base 10 with leading 0s)
+                trailing (int, number of trailing 0s)
         '''
         
         # raise error if exactly one defining argument not given
-        if sum((x is None for x in [number, zero_str, classic])) != 2:
+        if sum((x is None for x in
+                [number, num_str, zero_str, classic])) != 3:
             raise TypeError('exactly one defining argument is required')
             
         # find which argument was given and fill others
@@ -60,19 +62,32 @@ class Plug:
         if number is not None:
             if not isinstance(number, int):
                 raise TypeError('number must be an int')
-                
-            if number < 1:
-                raise ValueError('number must be greater than 0')
             
             # number to binary
             zero_str = bin(number)[2:]
+            
+            # number to string (note number starts have no leading 0s)
+            num_str = str(number)
+            
+        elif num_str is not None:
+            if not isinstance(num_str, str):
+                raise TypeError('num_str must be a str')
+                
+            try:
+                # string to number
+                number = int(num_str)
+
+            except ValueError:
+                raise ValueError('num_str must represent an integer')
+            
+            # number to binary
+            zero_str = '0' * num_str.index(str(number)) + bin(number)[2:]
             
         elif zero_str is not None:
             if not isinstance(zero_str, str):
                 raise TypeError('zero_str must be a str')
                 
-            if any((zero_str.count('0') == 0,
-                    len(zero_str.replace('0', '')) == 0)):
+            if len(zero_str.replace('0', '')) == 0:
                 raise ValueError('zero_str must have 0s and other characters')
             
             # clean zero_str input (1s for any non-zero)
@@ -81,6 +96,9 @@ class Plug:
             
             # binary to number
             number = int(zero_str, 2)
+            
+            # number to string
+            num_str = '0' * zero_str.index('1') + str(number)
             
         elif classic is not None:
             if not isinstance(classic, int):
@@ -96,16 +114,23 @@ class Plug:
             
             # binary to number
             number = int(zero_str, 2)
+            num_str = str(number)
+        
+        if number < 1:
+            raise ValueError('input must be positive')
         
         # remove 0s from beginning and end of zero_str if clean_ends
+        # remove leading 0s from num_str
         if clean_ends:
             zero_str = zero_str.strip('0')
             
             # change number to agree with cleaned string
             number = int(zero_str, 2)
+            num_str = str(number)
         
         # intialize given attributes
         self.number = number
+        self.num_str = num_str
         self.zero_str = zero_str
         self.classic = classic
         self.clean_ends = clean_ends
@@ -117,7 +142,6 @@ class Plug:
         self.symmetrical = (self.zero_str == self.reverse)
         self.leading = self.zero_str.index('1')
         self.trailing = self.reverse.index('1')
-        self.num_str = self.leading * '0' + str(self.number)
         
         
     def __repr__(self):
@@ -158,6 +182,7 @@ class Plug:
         ''' takes:
                 optional argument attribute takes str to force from.
                 'z' or 'zero_str' for zero_str,
+                's' or 'str_num' (*sigh*) for num_str,
                 'n' or 'number' for number,
                 'c' or 'classic' for classic
             returns: None
@@ -178,6 +203,10 @@ class Plug:
         # zero_str
         if attribute == 'z':
             new = Plug(zero_str = self.zero_str, clean_ends = self.clean_ends)
+        
+        # num_str
+        elif attribute == 's':
+            new = Plug(num_str = self.num_str, clean_ends = self.clean_ends)
         
         # number
         elif attribute == 'n':
@@ -205,11 +234,13 @@ if __name__ == '__main__':
     
     # set up some test plugs
     num = 91
+    nstr = '00218'
     zstr = '00xx0xx0x0'
     clssc = 6
     
     corr_dict_num = {
         'number': 91,
+        'num_str': '91',
         'zero_str': '1011011',
         'classic': None,
         'clean_ends': True,
@@ -218,11 +249,11 @@ if __name__ == '__main__':
         'reverse': '1101101',
         'symmetrical': False,
         'trailing': 0,
-        'leading': 0,
-        'num_str': '91'}
+        'leading': 0}
     
     corr_dict_zstr = {
         'number': 109,
+        'num_str': '109',
         'zero_str': '1101101',
         'classic': None,
         'clean_ends': True,
@@ -231,11 +262,11 @@ if __name__ == '__main__':
         'reverse': '1011011',
         'symmetrical': False,
         'trailing': 0,
-        'leading': 0,
-        'num_str': '109'}
+        'leading': 0}
     
     corr_dict_clssc = {
         'number': 33,
+        'num_str': '33',
         'zero_str': '100001',
         'classic': 6,
         'clean_ends': True,
@@ -244,11 +275,11 @@ if __name__ == '__main__':
         'reverse': '100001',
         'symmetrical': True,
         'trailing': 0,
-        'leading': 0,
-        'num_str': '33'}
+        'leading': 0}
     
     corr_dict_ends = {
         'number': 218,
+        'num_str': '00218',
         'zero_str': '0011011010',
         'classic': None,
         'clean_ends': False,
@@ -257,16 +288,19 @@ if __name__ == '__main__':
         'reverse': '0101101100',
         'symmetrical': False,
         'trailing': 1,
-        'leading': 2,
-        'num_str': '00218'}
+        'leading': 2}
     
     plug_num = Plug(num)
+    plug_nstr = Plug(num_str = nstr, clean_ends = False)
+    plug_nstr_c = Plug(num_str = nstr)
     plug_zstr = Plug(zero_str = zstr)
     plug_clssc = Plug(classic = clssc)
     plug_ends = Plug(zero_str = zstr, clean_ends = False)
     plug_flip = plug_num.flip()
     
     tester = [('num', plug_num, corr_dict_num),
+              ('nstr', plug_nstr, corr_dict_ends),
+              ('nstr_c', plug_nstr_c, corr_dict_zstr),
               ('zstr', plug_zstr, corr_dict_zstr),
               ('clssc', plug_clssc, corr_dict_clssc),
               ('ends', plug_ends, corr_dict_ends),
@@ -285,7 +319,7 @@ if __name__ == '__main__':
     
     # testing equivalency
     print('equivalence...')
-    if plug_flip != plug_zstr:
+    if plug_flip != plug_zstr or plug_ends != plug_nstr:
         fails.append('equivalence')
         
     # testing the reset method

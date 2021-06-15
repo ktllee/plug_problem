@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-last modified: 06/11/21
+last modified: 06/15/21
 
 @author: katie
 
@@ -47,7 +47,8 @@ class Plug:
                 reverse (str, representation of the flipped plug),
                 symmetrical (bool, true if reverse = zero_str),
                 leading (int, number of leading 0s),
-                trailing (int, number of trailing 0s)
+                trailing (int, number of trailing 0s),
+                num_str (str, base 10 with leading 0s)
         '''
         
         # raise error if exactly one defining argument not given
@@ -116,6 +117,7 @@ class Plug:
         self.symmetrical = (self.zero_str == self.reverse)
         self.leading = self.zero_str.index('1')
         self.trailing = self.reverse.index('1')
+        self.num_str = self.leading * '0' + str(self.number)
         
         
     def __repr__(self):
@@ -216,7 +218,8 @@ if __name__ == '__main__':
         'reverse': '1101101',
         'symmetrical': False,
         'trailing': 0,
-        'leading': 0}
+        'leading': 0,
+        'num_str': '91'}
     
     corr_dict_zstr = {
         'number': 109,
@@ -228,7 +231,8 @@ if __name__ == '__main__':
         'reverse': '1011011',
         'symmetrical': False,
         'trailing': 0,
-        'leading': 0}
+        'leading': 0,
+        'num_str': '109'}
     
     corr_dict_clssc = {
         'number': 33,
@@ -240,7 +244,8 @@ if __name__ == '__main__':
         'reverse': '100001',
         'symmetrical': True,
         'trailing': 0,
-        'leading': 0}
+        'leading': 0,
+        'num_str': '33'}
     
     corr_dict_ends = {
         'number': 218,
@@ -252,7 +257,8 @@ if __name__ == '__main__':
         'reverse': '0101101100',
         'symmetrical': False,
         'trailing': 1,
-        'leading': 2}
+        'leading': 2,
+        'num_str': '00218'}
     
     plug_num = Plug(num)
     plug_zstr = Plug(zero_str = zstr)
@@ -296,10 +302,10 @@ if __name__ == '__main__':
     
     # showing failures
     print()
-    print('Failed tests:')
+    print('failed tests:')
     
     if fails == []:
-        print('None.')
+        print('none.')
         
     else:
         for x in fails:

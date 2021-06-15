@@ -38,12 +38,10 @@ class Plug:
     """
     
     def __init__(self,
-                 number = None,
-                 num_str = None,
-                 zero_str = None,
-                 classic = None,
+                 rep,
+                 style = 'z',
                  clean_ends = True):
-        ''' intitalizes from one of number, num_str, zero_str, or classic.
+        ''' intitalizes from a descriptive attribute, based on style.
             also initializes:
                 number, num_str, and zero_str if not given,
                 length (int, total length),

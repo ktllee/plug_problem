@@ -20,8 +20,10 @@ This puzzle was inspired by the question ["Number of ways to arrange pairs of in
 
 ### Active Scripts
 
-`original_plugs.py` is code to brute-force solutions with all distinct plugs (no repeats), where plugs are defined by number of prongs and gaps between prongs (and all gaps are equal).  **Soon to be superseeded.**
+`original_plugs.py` is code to brute-force solutions with all distinct plugs (no repeats), where plugs are defined by number of prongs and gaps between prongs (and all gaps are equal).  **Stable. Soon to be superseeded.**
 
-`plug_class.py` contains the Plug class.
+`recursive_solver.py` is code to recursively solve for valid arrangements of any given list of Plugs.  **In Progress.**
+
+`plug_class.py` contains the Plug class.  **Active.**
 
 `strip_class.py` contains the Strip class. **In Progress.**

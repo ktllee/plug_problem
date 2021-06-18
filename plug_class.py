@@ -141,6 +141,9 @@ class Plug:
         
         # remove 0s from beginning and end of zero_str if clean_ends
         # remove leading 0s from num_str
+        if not isinstance(clean_ends, bool):
+            raise TypeError('clean_ends must be a bool')
+            
         if clean_ends:
             zero_str = zero_str.strip('0')
             

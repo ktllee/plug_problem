@@ -15,7 +15,7 @@ description:
     note that plugs are not reversible, meaning 1101 != 1011.
     methods:
         return reversed plug
-        deep copy (not ready yet)
+        deep copy
         reset attributes based on zero_str, clean_ends
 """
 
@@ -30,7 +30,7 @@ class Plug:
             clean_ends (bool): only prongs to end a plug (T) or allow gaps (F)
             
         flip() method returns a reversed plug.
-        copy() method returns a deep copy (not ready yet).
+        copy() method returns a deep copy.
         reset() method re-aligns attributes based on zero_str and clean_ends.
         
         note: be aware that the number attribute does not account for
@@ -184,15 +184,14 @@ class Plug:
         ''' takes: self
             returns: a deep copy of self
             
-            note that this does not carry over manually-created quirks
-            run reset first if needed
-            
-            ?? actually nah i dunno, might need to rely on copy.deepcopy
+            note that this carries over manually-created quirks
+            reset if needed
         '''
         
         new = Plug(1)
         
-        new.__dict__ = self.__dict__
+        for key in self.__dict__:
+            new.__dict__[key] = self.__dict__[key]
         
         return new
         
@@ -340,6 +339,16 @@ if __name__ == '__main__':
     print('equivalence...')
     if plug_flip != plug_zstr or plug_ends != plug_nstr:
         fails.append('equivalence')
+        
+    # testing the copy method
+    print('deep copy...')
+    plug_copy = plug_clssc.copy()
+    plug_clssc.__dict__['zero_str'] = '101'
+    
+    for key in corr_dict_clssc:
+        if plug_copy.__dict__[key] != corr_dict_clssc[key]:
+            key_note = key + ', copy'
+            fails.append(key_note)
         
     # testing the reset method
     print('reset...')

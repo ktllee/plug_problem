@@ -15,7 +15,7 @@ description:
 
 from plug_class import Plug
 
-def solve(plug_list, strip = [], style = 'p'):
+def solve(plug_list, strip = [], style = 'p', clean_ends = True):
     ''' takes:
             mandatory: 
                 plug_list - a list or dict of the plugs to be used.
@@ -57,20 +57,8 @@ def solve(plug_list, strip = [], style = 'p'):
     if style == 'p':
         plugs = [x for x in plug_rep]
         
-    elif style == 'z':
-        plugs = [Plug(zero_str = x) for x in plug_rep]
-        
-    elif style == 's':
-        plugs = [Plug(num_str = x) for x in plug_rep]
-        
-    elif style == 'n':
-        plugs = [Plug(number = x) for x in plug_rep]
-        
-    elif style == 'c':
-        plugs = [Plug(classic = x) for x in plug_rep]
-        
     else:
-        raise ValueError('style must be a valid attribute')
+        plugs = [Plug(x, style) for x in plug_rep]
     
     # no check for strip atm because unlikely for mistake, will change later
     # also no check for solutions, similar reason

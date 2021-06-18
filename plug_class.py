@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-last modified: 06/15/21
+last modified: 06/18/21
 
 @author: katie
 
@@ -21,9 +21,9 @@ description:
 
 class Plug:
     """ class for plug with defined prongs (any but 0) and gaps (0s)
-        must input one of:
+        must input one of below as represent, and the name as style:
             number (int): base 10 equivalent of binary plug, e.g. 5 == '101'
-            num_str (str): base 10 with leading zeros, e.g. '05' = '0101'
+            str_num (str): base 10 with leading zeros, e.g. '05' = '0101'
             zero_str (str): string representation with 0s, e.g. 'x0y' == '101'
             classic (int): total length for 1-2 prong plug, e.g. 3 == '101'
         optional:
@@ -38,10 +38,16 @@ class Plug:
     """
     
     def __init__(self,
-                 rep,
-                 style = 'z',
+                 represent,
+                 style = 'n',
                  clean_ends = True):
-        ''' intitalizes from a descriptive attribute, based on style.
+        ''' intitalizes from a descriptive attribute (represent),
+            based on style from specific options:
+                'z' or 'zero_str' for zero_str,
+                's' or 'str_num' (*sigh*) for num_str,
+                'n' or 'number' for number (default),
+                'c' or 'classic' for classic
+                
             also initializes:
                 number, num_str, and zero_str if not given,
                 length (int, total length),
@@ -52,38 +58,18 @@ class Plug:
                 trailing (int, number of trailing 0s)
         '''
         
-        # raise error if exactly one defining argument not given
-        if sum((x is None for x in
-                [number, num_str, zero_str, classic])) != 3:
-            raise TypeError('exactly one defining argument is required')
-            
+        # check that style is valid
+        if not isinstance(style, str):
+            raise TypeError('style must be str')
+          
+        # use first character only
+        style = style[0]
+        
         # find which argument was given and fill others
         # also raise errors for invalid values and types
-        if number is not None:
-            if not isinstance(number, int):
-                raise TypeError('number must be an int')
-            
-            # number to binary
-            zero_str = bin(number)[2:]
-            
-            # number to string (note number starts have no leading 0s)
-            num_str = str(number)
-            
-        elif num_str is not None:
-            if not isinstance(num_str, str):
-                raise TypeError('num_str must be a str')
-                
-            try:
-                # string to number
-                number = int(num_str)
-
-            except ValueError:
-                raise ValueError('num_str must represent an integer')
-            
-            # number to binary
-            zero_str = '0' * num_str.index(str(number)) + bin(number)[2:]
-            
-        elif zero_str is not None:
+        # zero_str
+        if style == 'z':
+            zero_str = represent
             if not isinstance(zero_str, str):
                 raise TypeError('zero_str must be a str')
                 
@@ -99,8 +85,38 @@ class Plug:
             
             # number to string
             num_str = '0' * zero_str.index('1') + str(number)
+        
+        # num_str
+        elif style == 's':
+            num_str = represent
+            if not isinstance(num_str, str):
+                raise TypeError('num_str must be a str')
+                
+            try:
+                # string to number
+                number = int(num_str)
+
+            except ValueError:
+                raise ValueError('num_str must represent an integer')
             
-        elif classic is not None:
+            # number to binary
+            zero_str = '0' * num_str.index(str(number)) + bin(number)[2:]
+        
+        # number
+        elif style == 'n':
+            number = represent
+            if not isinstance(number, int):
+                raise TypeError('number must be an int')
+            
+            # number to binary
+            zero_str = bin(number)[2:]
+            
+            # number to string (note number starts have no leading 0s)
+            num_str = str(number)
+        
+        # classic
+        elif style == 'c':
+            classic = represent
             if not isinstance(classic, int):
                 raise TypeError('classic must be an int')
                 
@@ -115,7 +131,11 @@ class Plug:
             # binary to number
             number = int(zero_str, 2)
             num_str = str(number)
+            
+        else:
+            raise ValueError('style must be a valid descriptor')
         
+        # last check
         if number < 1:
             raise ValueError('input must be positive')
         
@@ -132,7 +152,6 @@ class Plug:
         self.number = number
         self.num_str = num_str
         self.zero_str = zero_str
-        self.classic = classic
         self.clean_ends = clean_ends
         
         # initializing other attributes
@@ -173,7 +192,7 @@ class Plug:
             note that this method does not modify current plug.
         '''
         
-        new = Plug(zero_str = self.reverse, clean_ends = self.clean_ends)
+        new = Plug(self.reverse, style = 'z', clean_ends = self.clean_ends)
         
         return new
     
@@ -194,47 +213,55 @@ class Plug:
         return new
         
     
-    def reset(self, attribute = 'z'):
+    def reset(self, style = 'z'):
         ''' takes:
-                optional argument attribute takes str to force from.
+                optional argument style takes str to force from.
                 'z' or 'zero_str' for zero_str,
                 's' or 'str_num' (*sigh*) for num_str,
                 'n' or 'number' for number,
                 'c' or 'classic' for classic
             returns: None
                 
-            resets based on zero_str or given descriptor attribute.
+            resets based on zero_str or given descriptor style.
             always uses clean_ends behavior.
             
             note that this method directly modifies current plug.
         '''
         
-        # check that attribute is valid
-        if not isinstance(attribute, str):
-            raise TypeError('attribute must be str')
+        # check that style is valid
+        if not isinstance(style, str):
+            raise TypeError('style must be str')
           
         # use first character only
-        attribute = attribute[0]
+        style = style[0]
         
         # zero_str
-        if attribute == 'z':
-            new = Plug(zero_str = self.zero_str, clean_ends = self.clean_ends)
+        if style == 'z':
+            new = Plug(self.zero_str,
+                       style = 'z',
+                       clean_ends = self.clean_ends)
         
         # num_str
-        elif attribute == 's':
-            new = Plug(num_str = self.num_str, clean_ends = self.clean_ends)
+        elif style == 's':
+            new = Plug(self.num_str,
+                       style = 's',
+                       clean_ends = self.clean_ends)
         
         # number
-        elif attribute == 'n':
-            new = Plug(number = self.number, clean_ends = self.clean_ends)
+        elif style == 'n':
+            new = Plug(self.number,
+                       style = 'n',
+                       clean_ends = self.clean_ends)
         
         # classic
-        elif attribute == 'c':
-            new = Plug(classic = self.classic, clean_ends = self.clean_ends)
+        elif style == 'c':
+            new = Plug(self.classic,
+                       style = 'c',
+                       clean_ends = self.clean_ends)
         
         # error if none of the above
         else:
-            raise ValueError('attribute must correspond to descriptor')
+            raise ValueError('style must correspond to descriptor')
         
         self.__dict__.update(new.__dict__)
         
@@ -258,7 +285,6 @@ if __name__ == '__main__':
         'number': 91,
         'num_str': '91',
         'zero_str': '1011011',
-        'classic': None,
         'clean_ends': True,
         'length': 7,
         'prongs': 5,
@@ -271,7 +297,6 @@ if __name__ == '__main__':
         'number': 109,
         'num_str': '109',
         'zero_str': '1101101',
-        'classic': None,
         'clean_ends': True,
         'length': 7,
         'prongs': 5,
@@ -284,7 +309,6 @@ if __name__ == '__main__':
         'number': 33,
         'num_str': '33',
         'zero_str': '100001',
-        'classic': 6,
         'clean_ends': True,
         'length': 6,
         'prongs': 2,
@@ -297,7 +321,6 @@ if __name__ == '__main__':
         'number': 218,
         'num_str': '00218',
         'zero_str': '0011011010',
-        'classic': None,
         'clean_ends': False,
         'length': 10,
         'prongs': 5,
@@ -307,11 +330,11 @@ if __name__ == '__main__':
         'leading': 2}
     
     plug_num = Plug(num)
-    plug_nstr = Plug(num_str = nstr, clean_ends = False)
-    plug_nstr_c = Plug(num_str = nstr)
-    plug_zstr = Plug(zero_str = zstr)
-    plug_clssc = Plug(classic = clssc)
-    plug_ends = Plug(zero_str = zstr, clean_ends = False)
+    plug_nstr = Plug(nstr, style = 's', clean_ends = False)
+    plug_nstr_c = Plug(nstr, style = 's')
+    plug_zstr = Plug(zstr, style = 'z')
+    plug_clssc = Plug(clssc, style = 'c')
+    plug_ends = Plug(zstr, style = 'z', clean_ends = False)
     plug_flip = plug_num.flip()
     
     tester = [('num', plug_num, corr_dict_num),

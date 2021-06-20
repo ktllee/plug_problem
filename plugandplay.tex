@@ -1,0 +1,157 @@
+\documentclass[10pt]{article}
+%\usepackage[textheight=10in, textwidth=7in]{geometry}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts} % to get \mathbb letters
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{tabularx}% http://ctan.org/pkg/tabularx
+\usepackage{booktabs}% http://ctan.org/pkg/booktabs
+\usepackage{hyperref}
+\usepackage{verbatim}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{question}{Question}
+\newtheorem{example}[theorem]{Example}
+\numberwithin{equation}{section}
+
+
+\newcommand{\plug}[1]{%
+\mbox{{\textbf\texttt #1}}
+}
+
+\title{Plug and Play}
+\author{
+Ethan D. Bolker \\
+Deborah Borkovitz\\
+  Katelyn Lee\\u
+  Adam Salachi
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\emph{Describe the source of the problem and the group makeup}
+
+
+\section{Plugs}
+
+Our mathematical model for a plug is a bit string, for example
+\plug{1011}. Our current convention is that there are no leading or
+trailing \plug{0} bits. (We may want to relax that convention at some
+time.)
+
+The \emph{length} of a plug is the length of the string; this one has
+length $4$. The \emph{number of prongs} is the number of \plug{1} bits
+--- $3$ in this example.
+
+We will want ways to talk about plugs other than specifying their bit
+strings or plugnumbers. In any context we can give a plug any name we
+like, or have variables whose values can be plugs.
+
+Each plug has a \emph{plugnumber} when we
+interpret its bit string as a binary integer. So \plug{1011} is
+number $1 + 4 + 8 = 13$.%
+\footnote{This convention reads increasing bit significance from left
+  to right, so the first bit is the units bit. We can change our minds
+  and set the plugnumber for \plug{1011} to $1+2+8 = 11$ if we wish,
+  but let's decide soon and stick to our decision.}
+
+Since plugs begin and end with \plug{1} bits,
+the plugs of length $n$ have plugnumbers the odd integers between
+$2^{n-1} +1$ and $2^n -1$.
+\footnote{This equivalence will need revision if we allow leading and
+  trailing \plug{0}s in plug bitstrings.}
+
+The Stackexchange question that triggered our project asked about
+the $2$ prong plugs. We will give
+them their own names: $T_n$ for the two prong plug of length $n$, It
+has $n-2$ \plug{0} bits between its $2$ end prongs.
+\footnote{Perhaps we want the nontraditional $n_T$, emphasizing the
+  $n$ in our name for the two prong plug of that length.}
+
+That question used the the single prong plug number $1$ instead of the
+double prong plug $T_2$ with no gap between its prongs.
+
+\section{Plug Puzzles}
+
+A \emph{plug puzzle} is a finite multiset\footnote{A multiset is a
+  ``set that allows for repetitions of elements''.}
+ of plugs. A \emph{labeled} plug puzzle is a set of labeled
+ plugs. The fact that it's a set implies that all the labels are
+ distinct. When no two of the plugs have the same shape (bit string)
+ the strings or the plug numbers can serve as labels.
+
+ \begin{equation*}
+\{\plug{1011}, \plug{1001}, \plug{100} \}
+\end{equation*}
+ The distinction between ordinary and labeled plug sets is analogous
+ to the distinction common in combinatorial counting questions where
+ the balls being distributed into boxes are identical or
+ distinguishable.
+
+ In Python we would model a labeled plug puzzle as a dictionary, with
+ key the label and value the plug.
+
+ For example, consider the labeled puzzle
+ \begin{equation*}
+   \{ (a, \plug{1011}),
+   (b,\plug{1001}),
+   (c, \plug{1001}),
+   (d, \plug{101}) \}
+\end{equation*}
+
+ The \emph{length} of a plug puzzle is the sum of the lengths of its
+ plugs. This puzzle has length $9$.
+ 
+ \section{Power strip}
+
+ A \emph{power strip} (or just a \emph{strip} models a place to plug
+ in plugs. Think of it as a finite sequence of slots subsets of which
+ can  be occupied by the prongs of a plug. 
+
+ A plug can be \emph{inserted} in a strip at an integer offset $m$ if
+ the plugs   \plug{1} bits shifted by $m$ correspond to empty slots.
+ A pair consisting of a strip and a set of (plug, offset) pairs
+ and a strip is \emph{compatible} if all the plugs can be inserted at
+ the specified offsets. It is a \emph{solution} if
+ every slot in the strip is filled.
+
+ \section{An easy interesting question}
+
+ The stackexchange question asked for a fast algorithm to count the
+ number of solutions for the plug puzzle consisting of the first $n$
+ two prong puzzles.
+ 
+We think that problem is too  hard to tackle first. We may return to
+it.  Here's an easy one to start with - hardly worth calling a
+theorem, but it begins to put us in touch with some classical notions
+in combinatorics.
+
+\begin{theorem} For each integer $n$, the plug puzzle solutions for
+  the strip of length $n$ correspond to the partitions of the
+  $n$-element set $[n] = \{1,2, \ldots, n \}$.
+\end{theorem}
+
+\section{Thickness}
+
+There is more to the previous theorem than just counting partitions.
+
+\emph{Define thickness, as a sequence indexed by the spaces bewteen
+  slots in a strip. That allows us to consider unbreakable solutions
+  (thickness always positive) and maximum thickness.}
+%\newpage
+%\LaTeX source.
+%\verbatiminput{\jobname}
+\end{document}

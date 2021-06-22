@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-last modified: 06/18/21
+last modified: 06/22/21
 
 @author: katie
 
@@ -44,12 +44,12 @@ class Plug:
         ''' intitalizes from a descriptive attribute (represent),
             based on style from specific options:
                 'z' or 'zero_str' for zero_str,
-                's' or 'str_num' (*sigh*) for num_str,
+                's' or 'str_num' for str_num,
                 'n' or 'number' for number (default),
                 'c' or 'classic' for classic
                 
             also initializes:
-                number, num_str, and zero_str if not given,
+                number, str_num, and zero_str if not given,
                 length (int, total length),
                 prongs (int, number of prongs),
                 reverse (str, representation of the flipped plug),
@@ -84,23 +84,23 @@ class Plug:
             number = int(zero_str, 2)
             
             # number to string
-            num_str = '0' * zero_str.index('1') + str(number)
+            str_num = '0' * zero_str.index('1') + str(number)
         
-        # num_str
+        # str_num
         elif style == 's':
-            num_str = represent
-            if not isinstance(num_str, str):
-                raise TypeError('num_str must be a str')
+            str_num = represent
+            if not isinstance(str_num, str):
+                raise TypeError('str_num must be a str')
                 
             try:
                 # string to number
-                number = int(num_str)
+                number = int(str_num)
 
             except ValueError:
-                raise ValueError('num_str must represent an integer')
+                raise ValueError('str_num must represent an integer')
             
             # number to binary
-            zero_str = '0' * num_str.index(str(number)) + bin(number)[2:]
+            zero_str = '0' * str_num.index(str(number)) + bin(number)[2:]
         
         # number
         elif style == 'n':
@@ -112,7 +112,7 @@ class Plug:
             zero_str = bin(number)[2:]
             
             # number to string (note number starts have no leading 0s)
-            num_str = str(number)
+            str_num = str(number)
         
         # classic
         elif style == 'c':
@@ -130,7 +130,7 @@ class Plug:
             
             # binary to number
             number = int(zero_str, 2)
-            num_str = str(number)
+            str_num = str(number)
             
         else:
             raise ValueError('style must be a valid descriptor')
@@ -140,7 +140,7 @@ class Plug:
             raise ValueError('input must be positive')
         
         # remove 0s from beginning and end of zero_str if clean_ends
-        # remove leading 0s from num_str
+        # remove leading 0s from str_num
         if not isinstance(clean_ends, bool):
             raise TypeError('clean_ends must be a bool')
             
@@ -149,11 +149,11 @@ class Plug:
             
             # change number to agree with cleaned string
             number = int(zero_str, 2)
-            num_str = str(number)
+            str_num = str(number)
         
         # intialize given attributes
         self.number = number
-        self.num_str = num_str
+        self.str_num = str_num
         self.zero_str = zero_str
         self.clean_ends = clean_ends
         
@@ -220,7 +220,7 @@ class Plug:
         ''' takes:
                 optional argument style takes str to force from.
                 'z' or 'zero_str' for zero_str,
-                's' or 'str_num' (*sigh*) for num_str,
+                's' or 'str_num' for str_num,
                 'n' or 'number' for number,
                 'c' or 'classic' for classic
             returns: None
@@ -244,9 +244,9 @@ class Plug:
                        style = 'z',
                        clean_ends = self.clean_ends)
         
-        # num_str
+        # str_num
         elif style == 's':
-            new = Plug(self.num_str,
+            new = Plug(self.str_num,
                        style = 's',
                        clean_ends = self.clean_ends)
         
@@ -286,7 +286,7 @@ if __name__ == '__main__':
     
     corr_dict_num = {
         'number': 91,
-        'num_str': '91',
+        'str_num': '91',
         'zero_str': '1011011',
         'clean_ends': True,
         'length': 7,
@@ -298,7 +298,7 @@ if __name__ == '__main__':
     
     corr_dict_zstr = {
         'number': 109,
-        'num_str': '109',
+        'str_num': '109',
         'zero_str': '1101101',
         'clean_ends': True,
         'length': 7,
@@ -310,7 +310,7 @@ if __name__ == '__main__':
     
     corr_dict_clssc = {
         'number': 33,
-        'num_str': '33',
+        'str_num': '33',
         'zero_str': '100001',
         'clean_ends': True,
         'length': 6,
@@ -322,7 +322,7 @@ if __name__ == '__main__':
     
     corr_dict_ends = {
         'number': 218,
-        'num_str': '00218',
+        'str_num': '00218',
         'zero_str': '0011011010',
         'clean_ends': False,
         'length': 10,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-last modified: 06/15/21
+last modified: 06/22/21
 
 @author: katie
 
@@ -10,31 +10,32 @@ description:
     solve(plugs, init_style) returns a list of all valid arrangements
     for the plugs given in either dictionary or list form.
     
-    note: not yet compatible with strip class or Plug(clean_ends = False)
+    note: does not currently support plugs with hanging ends
 """
 
 from plug_class import Plug
+from strip_class import Strip
 
-def solve(plug_list, strip = [], style = 'p', clean_ends = True):
+def solve(plug_list, strip = None, style = 'p'):
     ''' takes:
             mandatory: 
                 plug_list - a list or dict of the plugs to be used.
-                strip - a list of plugs currently in strip (default [])
-            optional:  style - str of attribute to init Plugs from.
-                'z' or 'zero_str' for zero_str (default),
-                's' or 'str_num' (*sigh*) for num_str,
-                'n' or 'number' for number,
-                'c' or 'classic' for classic,
-                'p' or 'plug' for full Plugs
+            optional:  
+                strip - a Strip with the current plugs to start solutions from
+                style - str of attribute to init Plugs from.
+                    'z' or 'zero_str' for zero_str (default),
+                    's' or 'str_num' (*sigh*) for num_str,
+                    'n' or 'number' for number,
+                    'c' or 'classic' for classic,
+                    'p' or 'plug' for full Plugs
         returns: a set of solutions
         
         recursively finds solutions for the plug problem.
         uses the "ball and strings" method,
         which searches along each "string" until it is found to be (in)valid.
     '''
-    solutions = []
     
-    # check for type of list/dict of plugs
+    # check for type of list/dict of plugs and change to list
     if isinstance(plug_list, dict):
         plug_rep = []
         for key in plug_list:
@@ -47,59 +48,60 @@ def solve(plug_list, strip = [], style = 'p', clean_ends = True):
     else:
         raise TypeError('plug_list must be a list or dict')
     
-    # standardize style
+    # standardize style input
     if not isinstance(style, str):
         raise TypeError('style must be a str')
-    
+        
     style = style[0]
     
-    # initalize plugs (may change later with update to Plug class)
+    # initalize plugs
     if style == 'p':
         plugs = [x for x in plug_rep]
         
     else:
         plugs = [Plug(x, style) for x in plug_rep]
     
-    # no check for strip atm because unlikely for mistake, will change later
-    # also no check for solutions, similar reason
+    # if no strip yet initiated, create one
+    if strip == None:
+        length = sum([x.prongs for x in plugs])
+        strip = Strip(length)
+        
+    # else, make sure it is a strip
+    else:
+        if not isinstance(strip, Strip):
+            raise TypeError('strip must be a Strip')
     
     # base case - run out of plugs, time to return
     if plugs == []:
-        new_sol = [x.num_str for x in strip]
-        if new_sol not in solutions:
-            solutions.append(new_sol)
-        return solutions
+        new_sol = [x.str_num for x in strip.plug_list]
+        return [new_sol]
     
-    # strip class should fix messiness here
-    total = sum([x.prongs for x in plugs]) + sum([x.prongs for x in strip])
-    zstrip = [x.zero_str for x in strip]
-    filled = ['0'] * total
-    for i in range(len(zstrip)):
-        first = filled.index('0')
-        indices = [j + first for j, x in enumerate(zstrip[i]) if x == '1']
-        copied = filled[:]
-        filled = ['1' if (copied[i] == '1' or i in indices) else '0' \
-                  for i in range(total)]
-        
-    
+    # list of possible next plugs without repeats    
     next_plug = []
     for option in plugs:
         if option not in next_plug:
             next_plug.append(option)
     
+    # initialize list of solutions
+    solutions = []
+    
     # recursive case - try plugs in existing spaces
     for option in next_plug:
-        first = filled.index('0')
-        indices = [j + first for j, x in enumerate(option.zero_str) if x == '1']
-        if all([x < total for x in indices]):
-            if all([filled[k] == '0' for k in indices]):
-                new_plugs = plugs[:]
-                new_strip = strip[:]
-                correct = new_plugs.pop(plugs.index(option))
-                new_strip.append(correct)
-                recur = solve(new_plugs, new_strip)
-                solutions.extend(recur)
-    
+        
+        # try the next plug in a copy of the strip
+        new_strip = strip.copy()
+        result = new_strip.add(option, 'p')
+        
+        # if the add was successful, pass the copy to next iteration
+        if result == 'added':
+            
+            # remove used plug from list
+            new_plugs = plugs.copy()
+            new_plugs.remove(option)
+            
+            # call solve
+            recur = solve(new_plugs, new_strip)
+            solutions.extend(recur)
     
     return solutions
 

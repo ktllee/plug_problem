@@ -22,7 +22,12 @@
 \newtheorem{example}[theorem]{Example}
 \numberwithin{equation}{section}
 
-
+\newenvironment{anote}
+               {{\textcolor{blue}{Note:}}
+                 \itshape
+               }
+               {}
+                 
 \newcommand{\plug}[1]{%
 \mbox{{\textbf\texttt #1}}
 }
@@ -31,7 +36,7 @@
 \author{
 Ethan D. Bolker \\
 Deborah Borkovitz\\
-  Katelyn Lee\\u
+  Katelyn Lee\\
   Adam Salachi
 }
 \date{\today}
@@ -42,7 +47,10 @@ Deborah Borkovitz\\
 
 \section{Introduction}
 
-\emph{Describe the source of the problem and the group makeup}
+\begin{anote}
+Describe the source of the problem and the group makeup
+\end{anote}
+
 
 
 \section{Plugs}
@@ -56,9 +64,6 @@ The \emph{length} of a plug is the length of the string; this one has
 length $4$. The \emph{number of prongs} is the number of \plug{1} bits
 --- $3$ in this example.
 
-We will want ways to talk about plugs other than specifying their bit
-strings or plugnumbers. In any context we can give a plug any name we
-like, or have variables whose values can be plugs.
 
 Each plug has a \emph{plugnumber} when we
 interpret its bit string as a binary integer. So \plug{1011} is
@@ -74,6 +79,10 @@ $2^{n-1} +1$ and $2^n -1$.
 \footnote{This equivalence will need revision if we allow leading and
   trailing \plug{0}s in plug bitstrings.}
 
+We will want ways to talk about plugs other than specifying their bit
+strings or plugnumbers. In any context we can give a plug any name we
+like, or have variables whose values can be plugs.
+
 The Stackexchange question that triggered our project asked about
 the $2$ prong plugs. We will give
 them their own names: $T_n$ for the two prong plug of length $n$, It
@@ -86,6 +95,15 @@ double prong plug $T_2$ with no gap between its prongs.
 
 \section{Plug Puzzles}
 
+\begin{anote}
+The discussion here pays a lot of attention to reusing plugs,
+  and whether two instances of the same plug are the same or
+  different. Our work so far seems to have focussed on allowing
+  multiple instances of plugs and not distinguishing among them. So we
+  should probably design vocabulary that makes that easiest. If so,
+  this section needs a rewrite.
+\end{anote}
+
 A \emph{plug puzzle} is a finite multiset\footnote{A multiset is a
   ``set that allows for repetitions of elements''.}
  of plugs. A \emph{labeled} plug puzzle is a set of labeled
@@ -93,9 +111,6 @@ A \emph{plug puzzle} is a finite multiset\footnote{A multiset is a
  distinct. When no two of the plugs have the same shape (bit string)
  the strings or the plug numbers can serve as labels.
 
- \begin{equation*}
-\{\plug{1011}, \plug{1001}, \plug{100} \}
-\end{equation*}
  The distinction between ordinary and labeled plug sets is analogous
  to the distinction common in combinatorial counting questions where
  the balls being distributed into boxes are identical or
@@ -117,40 +132,119 @@ A \emph{plug puzzle} is a finite multiset\footnote{A multiset is a
  
  \section{Power strip}
 
- A \emph{power strip} (or just a \emph{strip} models a place to plug
- in plugs. Think of it as a finite sequence of slots subsets of which
- can  be occupied by the prongs of a plug. 
+ \begin{anote}
+Not sure whether to think of a power strip as a place to plug
+ in plugs or as a strip with some plugs in place. For now, the latter
+ seems to require fewer words.
+\end{anote}
 
- A plug can be \emph{inserted} in a strip at an integer offset $m$ if
- the plugs   \plug{1} bits shifted by $m$ correspond to empty slots.
- A pair consisting of a strip and a set of (plug, offset) pairs
- and a strip is \emph{compatible} if all the plugs can be inserted at
- the specified offsets. It is a \emph{solution} if
+ 
+ A \emph{power strip} (or just a \emph{strip}) models a place to plug
+ in plugs. Think of it as a finite sequence of slots some of
+ which are occupied by the prongs of plugs. So a power strip
+is a pair consisting of an array of slots and a set of (plug, offset)
+pairs such that all the plugs can be inserted simultaneously at
+ the specified offsets. It is a \emph{solved} if
  every slot in the strip is filled.
 
  \section{An easy interesting question}
 
  The stackexchange question asked for a fast algorithm to count the
- number of solutions for the plug puzzle consisting of the first $n$
- two prong puzzles.
+ number of solutions for the plug puzzles consisting of one each of
+ the first $n$ two prong puzzles.
  
 We think that problem is too  hard to tackle first. We may return to
-it.  Here's an easy one to start with - hardly worth calling a
+it.  Here's the natural first one to start with, Given an empty strip
+of length $n$, find all the plug puzzle solutions, allowing multiples
+of any kinds of plugs. We'll call that problem $\mathbb{E}$, for easy.
+The answer is hardly worth calling a
 theorem, but it begins to put us in touch with some classical notions
 in combinatorics.
 
-\begin{theorem} For each integer $n$, the plug puzzle solutions for
-  the strip of length $n$ correspond to the partitions of the
-  $n$-element set $[n] = \{1,2, \ldots, n \}$.
+\begin{theorem} For each integer $n$, solved strips for the plug
+  puzzles that allow arbitrary many instances of any plug
+correspond to the partitions of the   $n$-element set $[n] = \{1,2,
+\ldots, n \}$. 
 \end{theorem}
 
-\section{Thickness}
+\begin{anote}
+Example here --- wait until the good \LaTeX{} plug representation
+  is done.
+\end{anote}
 
-There is more to the previous theorem than just counting partitions.
+The \href{https://en.wikipedia.org/wiki/Bell_number}{Bell numbers}
+$\{1, 2, 3, 5, 15, 52, \ldots$  count these.
 
-\emph{Define thickness, as a sequence indexed by the spaces bewteen
-  slots in a strip. That allows us to consider unbreakable solutions
-  (thickness always positive) and maximum thickness.}
+\section{Thickness, factoring}
+
+There is more information in a a solved power strip than the shape of
+the partition that defines it. For example, two copies of \plug{101}
+solve a strip of length $4$. So do two copies of \plug{11}. All of
+those plugs correspond to a partition the four element set of slots
+into two sets of two slots each. But their geometry is different.
+
+In a  power strip of length $n$ there are $n-1$ \emph{gaps} between
+slots. The \emph{thickness} or \emph{thickness array} is a the
+sequence of integers that counts the number of plugs that cover each
+of the gaps. A solution (that is, a filled strip) is \emph{prime} if
+its thickness is never $0$. Any solution is a concatenation of prime
+filled strips: the \emph{factors}.
+
+Whether or not the factors are themselves solutions to a
+particular problem depends on the problem specifications. For the
+stackexchange problem nontrivial factors are never solutions since
+solutions must use all the two prong plugs up to some length. For the
+most general problem discussed in the preceding section every prime
+factor is a solution for its shorter strip. When that  happens we can
+relate the number of prime solutions and the number of solutions.
+
+Let $b_n$ be the number of solved strips of length $n$ and
+$p_n$ the number of prime solutions of length $n$.
+
+Some of the counts $b_n$ and $p_n$ may be $0$. Consider the
+problem that uses just the classic two prong plug \plug{11}.
+Then $b_n = 1$ if $n$ is even, $0$ if $n$ is odd. $p_2 =1$ and
+$p_n = 0$ when $n \ne 2$.
+
+The sequence $\{1,1,2,6,22, \ldots\}$ counts the prime solutions to
+problem $\mathbb{E}$. That sequence seems to be
+\href{https://oeis.org/A074664}{A074664} in
+\href{https://oeis.org}{The On-Line Encyclopedia of Integer
+  Sequences}. The comments there about permutations and partitions
+strongly supports
+
+\begin{conjecture}
+The prime solutions to problem $\mathbb{E}$ are characterized by the
+equivalent conditions defining the OEIS sequence A074664.
+\end{conjecture}
+
+This easy theorem might help prove the conjecture:
+
+\begin{theorem}
+Suppose that every factor of a solved strip solves its smaller strip.
+ Then
+$$
+b_n = p_1 b_{n-1} + p_2b_{n-2} + \cdots + p_{n-1}b_1 + p_n
+$$
+\end{theorem}
+\begin{proof}
+Each solved strip begins with a prime solution of length $k \le n$ which can be
+chosen $p_k$ ways and ends with one of the $b_{n-k}$ solved strips of
+length $n-k$. 
+\end{proof}
+
+\begin{anote}
+So far we've used thickness only to find factors. But there is
+probably more information to exploit. What's the maximum thickness?
+What patterns are possible in the thickness vector?
+\end{anote}
+
+\section{Infinite strips}
+
+\begin{anote}
+Placeholder for work on infinite prime strips.
+\end{anote}
+
 %\newpage
 %\LaTeX source.
 %\verbatiminput{\jobname}

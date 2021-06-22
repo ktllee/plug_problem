@@ -361,7 +361,9 @@ if __name__ == '__main__':
     
     # testing equivalency
     print('equivalence...')
-    if plug_flip != plug_zstr or plug_ends != plug_nstr:
+    if any((plug_flip != plug_zstr,
+            plug_ends != plug_nstr,
+            plug_flip == plug_ends)):
         fails.append('equivalence')
         
     # testing the copy method

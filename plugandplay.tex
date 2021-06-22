@@ -239,6 +239,40 @@ probably more information to exploit. What's the maximum thickness?
 What patterns are possible in the thickness vector?
 \end{anote}
 
+\section{Specifying Variations}
+
+There are (at least) two ways to specify the plugs allowed in a
+puzzle: which plugs and how many of each. For each of those
+attributes you can write inclusion or exclusion rules.
+
+Something like
+
+\begin{equation*}
+\mathbb{E}(\text{prongs } = \{2, 4, 6, \ldots\}, \text{number } = 3
+\text{ at most})
+\end{equation*}
+is the plug puzzle where you can use plugs with just an
+even number of prongs, at most  $3$ of each. Then
+\begin{equation*}
+  \mathbb{E}  = \mathbb{E}(\text{all plugs },\infty)
+\end{equation*}
+is the anything goes puzzle while
+the study of two prong plugs is
+\begin{equation*}
+    \mathbb{E}(\{T_k\}, \infty)
+\end{equation*}
+
+The puzzle
+\begin{equation*}
+  \mathbb{E}(\{T_k\} 1 \text{ exactly})
+\end{equation*}
+is almost the original stackexchange question --- it uses  our new
+meaning for the first plug, and requires one of each but not one of
+each of the first $k$.
+
+
+For any puzzle we try to understand the number and shape of solutions
+and prime solutions as a function of the size of the strip.
 \section{Infinite strips}
 
 \begin{anote}

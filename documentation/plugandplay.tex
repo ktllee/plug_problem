@@ -11,6 +11,7 @@
 \usepackage{booktabs}% http://ctan.org/pkg/booktabs
 \usepackage{hyperref}
 \usepackage{verbatim}
+\usepackage{comment}
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}[theorem]{Definition}
@@ -22,6 +23,11 @@
 \newtheorem{example}[theorem]{Example}
 \numberwithin{equation}{section}
 
+\DeclareMathOperator{\cp}{cp} % count plugs
+\DeclareMathOperator{\cpp}{cpp} % count prime plugs
+\DeclareMathOperator{\cs}{cs} % count strips
+\DeclareMathOperator{\csp}{csp} % count prime strips
+
 \newenvironment{anote}
                {{\textcolor{blue}{Note:}}
                  \itshape
@@ -32,10 +38,16 @@
 \mbox{{\textbf\texttt #1}}
 }
 
+\newcommand{\puzzle}{%
+   \ensuremath{
+   \mathbb{E}
+   }
+}
+
 \title{Plug and Play}
 \author{
 Ethan D. Bolker \\
-Deborah Borkovitz\\
+Debra K. Borkovitz\\
   Katelyn Lee\\
   Adam Salachi
 }
@@ -53,7 +65,7 @@ Describe the source of the problem and the group makeup
 
 
 
-\section{Plugs}
+\section{Plugs, Strips and Puzzles}
 
 Our mathematical model for a plug is a bit string, for example
 \plug{1011}. Our current convention is that there are no leading or
@@ -63,7 +75,6 @@ time.)
 The \emph{length} of a plug is the length of the string; this one has
 length $4$. The \emph{number of prongs} is the number of \plug{1} bits
 --- $3$ in this example.
-
 
 Each plug has a \emph{plugnumber} when we
 interpret its bit string as a binary integer. So \plug{1011} is
@@ -84,60 +95,10 @@ strings or plugnumbers. In any context we can give a plug any name we
 like, or have variables whose values can be plugs.
 
 The Stackexchange question that triggered our project asked about
-the $2$ prong plugs. We will give
-them their own names: $T_n$ for the two prong plug of length $n$, It
-has $n-2$ \plug{0} bits between its $2$ end prongs.
-\footnote{Perhaps we want the nontraditional $n_T$, emphasizing the
-  $n$ in our name for the two prong plug of that length.}
-
-That question used the the single prong plug number $1$ instead of the
-double prong plug $T_2$ with no gap between its prongs.
-
-\section{Plug Puzzles}
-
-\begin{anote}
-The discussion here pays a lot of attention to reusing plugs,
-  and whether two instances of the same plug are the same or
-  different. Our work so far seems to have focussed on allowing
-  multiple instances of plugs and not distinguishing among them. So we
-  should probably design vocabulary that makes that easiest. If so,
-  this section needs a rewrite.
-\end{anote}
-
-A \emph{plug puzzle} is a finite multiset\footnote{A multiset is a
-  ``set that allows for repetitions of elements''.}
- of plugs. A \emph{labeled} plug puzzle is a set of labeled
- plugs. The fact that it's a set implies that all the labels are
- distinct. When no two of the plugs have the same shape (bit string)
- the strings or the plug numbers can serve as labels.
-
- The distinction between ordinary and labeled plug sets is analogous
- to the distinction common in combinatorial counting questions where
- the balls being distributed into boxes are identical or
- distinguishable.
-
- In Python we would model a labeled plug puzzle as a dictionary, with
- key the label and value the plug.
-
- For example, consider the labeled puzzle
- \begin{equation*}
-   \{ (a, \plug{1011}),
-   (b,\plug{1001}),
-   (c, \plug{1001}),
-   (d, \plug{101}) \}
-\end{equation*}
-
- The \emph{length} of a plug puzzle is the sum of the lengths of its
- plugs. This puzzle has length $9$.
- 
- \section{Power strip}
-
- \begin{anote}
-Not sure whether to think of a power strip as a place to plug
- in plugs or as a strip with some plugs in place. For now, the latter
- seems to require fewer words.
-\end{anote}
-
+the $2$ prong plugs. We'll call those the \emph{classic plugs} and give
+them their own names: $T_k$ for the two prong plug of length $k$, It
+has $k-2$ \plug{0} bits between its $2$ end prongs. $T_k$ has plugnumber $2^{k-1} + 1$.
+ The stackexchange question uses the single prong plug \plug{1}{} instead of the mathematically more natural length $2$ two prong plug $T_2$ with no gap between the prongs.
  
  A \emph{power strip} (or just a \emph{strip}) models a place to plug
  in plugs. Think of it as a finite sequence of slots some of
@@ -147,22 +108,40 @@ pairs such that all the plugs can be inserted simultaneously at
  the specified offsets. It is a \emph{solved} if
  every slot in the strip is filled.
 
- \section{An easy interesting question}
+A \emph{plug puzzle}, or, for us, just a puzzle, specifies the types amd numbers of plugs you are allowed to use to fill a strip --- something like
+\begin{equation*}
+    \puzzle(\text{list of allowable plug types},\text{restrictions on numbers of plugs of each type})
+\end{equation*}
 
- The stackexchange question asked for a fast algorithm to count the
- number of solutions for the plug puzzles consisting of one each of
- the first $n$ two prong puzzles.
+A \emph{solution} of length $n$ is a strip with $n$ slots filled with plugs that are consistent with the restrictions in the puzzle specification.
+
+
+Given a puzzle we try to understand the number and shape of solutions. often as
+  a function of the size of the strip.
+
+\begin{anote}
+Remember to say somewhere (perhaps not here) that plugs and solutions have a left to right direction. You can't turn them around. Perhaps add an electric system not quite analogy.
+\end{anote}
+
+The stackexchange post posed a sequence of puzzles:
+\begin{equation*}
+\mathbb{T}_k = \puzzle( (\text{the one prong plug}, T_3, T_4, \ldots. T_k), \text{exactly 1 of each } ).
+\end{equation*}
+The only possible solutions are strips of length $2k+1$. The question asks for an efficient algorithm to count them.
+
+ \section{Anything goes}
  
-We think that problem is too  hard to tackle first. We may return to
-it.  Here's the natural first one to start with, Given an empty strip
-of length $n$, find all the plug puzzle solutions, allowing multiples
-of any kinds of plugs. We'll call that problem $\mathbb{E}$, for easy.
-The answer is hardly worth calling a
-theorem, but it begins to put us in touch with some classical notions
+That puzzle spurred our investigations,bput it is much too hard to start out with. In particular, we discovered that restricting the number of plugs of each type is a stumbling block. So for a while we will study just puzzles that specify the allowed plug types, with no limit on the number of each that can appear in a solution.
+
+In the \emph{anything goes}  puzzle $\mathbb{A}$  you may use any plugs as oftem as you wish:
+\begin{equation*}
+  \mathbb{A}  = \puzzle(\text{all plug types } )
+\end{equation*}
+Counting solutions begins to put us in touch with some classical notions
 in combinatorics.
 
-\begin{theorem} For each integer $n$, solved strips for the plug
-  puzzles that allow arbitrary many instances of any plug
+\begin{theorem} Length $n$ solutions for the plug
+  puzzle that allows arbitrary many instances of any plug
 correspond to the partitions of the   $n$-element set $[n] = \{1,2,
 \ldots, n \}$. 
 \end{theorem}
@@ -175,13 +154,12 @@ Example here --- wait until the good \LaTeX{} plug representation
 The \href{https://en.wikipedia.org/wiki/Bell_number}{Bell numbers}
 $\{1, 2, 3, 5, 15, 52, \ldots$  count these.
 
-\section{Thickness, factoring}
+\section{Factoring}
 
-There is more information in a a solved power strip than the shape of
+There is more information in a a solved  strip than the shape of
 the partition that defines it. For example, two copies of \plug{101}
-solve a strip of length $4$. So do two copies of \plug{11}. All of
-those plugs correspond to a partition the four element set of slots
-into two sets of two slots each. But their geometry is different.
+solve a strip of length $4$. So do two copies of \plug{11}. Both solutions correspond to a partition the four element set of slots
+into two sets of two slots each, but their geometry is different.
 
 In a  power strip of length $n$ there are $n-1$ \emph{gaps} between
 slots. The \emph{thickness} or \emph{thickness array} is a the
@@ -190,47 +168,44 @@ of the gaps. A solution (that is, a filled strip) is \emph{prime} if
 its thickness is never $0$. Any solution is a concatenation of prime
 filled strips: the \emph{factors}.
 
-Whether or not the factors are themselves solutions to a
-particular problem depends on the problem specifications. For the
-stackexchange problem nontrivial factors are never solutions since
-solutions must use all the two prong plugs up to some length. For the
-most general problem discussed in the preceding section every prime
-factor is a solution for its shorter strip. When that  happens we can
-relate the number of prime solutions and the number of solutions.
+When a puzzle specifies no restrictions on the number of each kind of plug then factors and products (concatenations) of solutions are themselves solutions.  When that  happens we can relate the number of prime solutions and the number of solutions.
 
-Let $b_n$ be the number of solved strips of length $n$ and
-$p_n$ the number of prime solutions of length $n$.
+Let $\cs(n)$ be the number of solved strips of length $n$ and
+$\csp(n)$ the number of prime solutions of length $n$. 
+Let $\cp(n)$ be the number of solved strips that use $n$ plugs and
+$\cpp(n)$ the number of prime solutions that use $n$ plugs.
 
-Some of the counts $b_n$ and $p_n$ may be $0$. Consider the
-problem that uses just the classic two prong plug \plug{11}.
-Then $b_n = 1$ if $n$ is even, $0$ if $n$ is odd. $p_2 =1$ and
-$p_n = 0$ when $n \ne 2$.
+Some of these counts may be $0$. Consider the
+puzzle that uses just the classic  plug \plug{11}.
+Then $cs(n) = 1$ if $n$ is even, $0$ if $n$ is odd. $csp(2) =1$ and
+$0$  otherwise.
 
-The sequence $\{1,1,2,6,22, \ldots\}$ counts the prime solutions to
-problem $\mathbb{E}$. That sequence seems to be
+We did a brute force calculation for the number of prime solutions to the anything goes puzzle, and found $\{1,1,2,6,22, \ldots\}$. That sequence seems to be
 \href{https://oeis.org/A074664}{A074664} in
 \href{https://oeis.org}{The On-Line Encyclopedia of Integer
   Sequences}. The comments there about permutations and partitions
-strongly supports
+strongly support
 
 \begin{conjecture}
-The prime solutions to problem $\mathbb{E}$ are characterized by the
+The prime solutions to problem $\mathbb{A}$ are characterized by the
 equivalent conditions defining the OEIS sequence A074664.
 \end{conjecture}
 
 This easy theorem might help prove the conjecture:
 
-\begin{theorem}
-Suppose that every factor of a solved strip solves its smaller strip.
+\begin{theorem}\label{thm:primerecursion}
+Suppose that every factor of a solved strip solves its smaller strip and any concatenation of solved strips is a solution.
  Then
 $$
-b_n = p_1 b_{n-1} + p_2b_{n-2} + \cdots + p_{n-1}b_1 + p_n
+\cs(n) = \csp(1)\cs(n-1) +  \csp(2)\cs(n-2) + \cdots + \csp(n-2)\cs(2) + \csp(n)
 $$
+and the same recursion hold for the counts $\cp)$ and $\cpp)$.
 \end{theorem}
 \begin{proof}
 Each solved strip begins with a prime solution of length $k \le n$ which can be
-chosen $p_k$ ways and ends with one of the $b_{n-k}$ solved strips of
+chosen $\csp(k)$ ways and ends with one of the $\cs(n-k)$ solved strips of
 length $n-k$. 
+Replace "length" by "nimber of plugs" to prove the second assertion.
 \end{proof}
 
 \begin{anote}
@@ -239,46 +214,173 @@ probably more information to exploit. What's the maximum thickness?
 What patterns are possible in the thickness vector?
 \end{anote}
 
-\section{Specifying Variations}
+\section {Disallowing the Plug $1$}
 
-There are (at least) two ways to specify the plugs allowed in a
-puzzle: which plugs and how many of each. For each of those
-attributes you can write inclusion or exclusion rules.
+\begin{anote}
+Also a section by Debbie.  Also again, not really a theorem and notation should probably be changed. Table needs to be better labeled.  I have similar work for when the plug 1 is allowed that I ran out of time before I put up. 
+\end{anote}
 
-Something like
+\begin{theorem}
+Let $S'(n,k)$ represent the number of set partitions with no singletons, i.e. the number of solutions to the plug problem with $k$ plugs, where the plug $1$ is not allowed. Then $S'(n,k) = kS'(n-1,k) + (n-1)S'(n-2,k-1)$, with $S'(2,1)=1$ and $S'(n,k) =0$ when $k > \frac{n}{2}$
+\end{theorem}
+
+\begin{proof}
+Consider adding position $n-1$ in a strip of length $n$ (where position numbering starts from $0$) to form a solution with $k$ plugs. We can add a prong at position $n-1$ to one of the existing plugs in a solution for a strip of length $n-1$ with $k$ plugs in $kS'(n-1,k)$, which counts all possibilities where position $n-1$ is part of a plug with 3 or more prongs. If position $n-1$ is part of a plug with 2 prongs, then we have $n-1$ choices for the other end of the plug, and we have a total of  $(n-1)S'(n-2,k-1)$ solutions. 
+\end{proof}
+
+The solutions form a triangle, with $n$ on the vertical axis and $k$ on the horizontal:
+
+\begin{center}
+\begin{tabular}{ |c|c|c|c|c| } 
+ \hline
+ 1 & 2 & 3  & 4 & 5\\ 
+ \hline
+1 & 0 & 0  & 0 & 0\\ 
+2 & 1 & 0  & 0 & 0\\ 
+3 & 1 & 0  & 0 & 0\\ 
+4 & 1 & 3  & 0 & 0\\ 
+5 & 1 & 10  & 0 & 0\\ 
+6 & 1 & 25  & 15 & 0\\ 
+7 & 1 & 56  & 105 & 0\\ 
+
+ \hline
+\end{tabular}
+\end{center}
+
+
+\section{Puzzles with just one plug type}
+
+\begin{anote}
+When we do enough of these we may see metapatterns.
+\end{anote}
+\begin{itemize}
+    \item $\plug{11\ldots 1}$
+    This puzzle has just one prime, the plug itself, of length $k$. 
+    \item $\plug{100\ldots 1}$ These are the classic plugs. 
+    \begin{conjecture}
+    Using just the classic plug of length $k$, the only prime is the  one of length $2k-2$ constructed from $k-2$ copies in the obvious way.
+    \end{conjecture}
+    
+    \item $\plug{1011}$
+    This puzzle has no solutions.
+    
+
+        \end{itemize}
+\begin{question}
+Are there any single plug puzzles with more than one prime?
+\end{question}
+
+\begin{question}
+Can we characterize the single plug puzzles with no solutions?
+\end{question}
+\section{Puzzles with two plug types}
+
+
+\section{Puzzles using 2 Prong Plugs}
+
+\begin{anote}
+There seem to be two attempts at this count. Perhaps one from Adam (moved here) or perhaps both from Deb. I'm not sure what is being counted. We should look at this with our codified definitions.
+
+First attempt:
+\end{anote}
+
+   Using only classic plugs of length $2^k$ where $k>0$:
+        \begin{center}
+        \begin{tabular}{ |c|c|c|c|c| } 
+         \hline
+         length & $\csp$ & $\cs$ \\ 
+         \hline
+        2 & 1 & 1\\
+        4 & 1 & 2\\
+        6 & 1 & 4\\
+        8 & 3 & 11\\
+        10 & 12 & 33\\
+        12 & 14 & 86\\
+        14 & -- & --\\
+         \hline
+        \end{tabular}
+        \end{center}
+        
+\begin{anote}
+Deb's work:
+\end{anote}
+
+In this section we count strips that can be made eith just the two prong plugs:
+\begin{equation*}
+    \mathbb{T} = \puzzle(\{T_k | k = 1, 2, \ldots\})
+\end{equation*}
+This is the stackexchange puzzle, using $T_0$ instead of the single prong plug \plug(1), with no restrictions on the number of each kind of plug.
+
+\begin{anote}
+What is below doesn't really warrant a theorem... maybe a proposition or a lemma or just within the text, not sure. Also the $t(n)$ notation is temporary pending my comment in the Specifying Variations section. Also should we use length $n$ for the strip for consistency, which would make all odd lengths 0, or use $2n$ as I did below?
+\end{anote}
+
+\begin{theorem}
+For the puzzle $\mathbb{T}$ there are no solutions of odd length. For each $n$,
+\begin{equation*}
+    \cs(2n)=(2n-1) \cdot (2n-3) \cdots 3 \cdot 1.
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+Solutions of length $2n$ correspond to   partitions of the set of $2n$ slots into subsets of size two. There are $2n-1$ ways to choose a partner for the plug whose first prong occupies the first slot , $2n-3$ ways to choose a partner for the plug whose first prong occupies the next empty slot, and so on. 
+\end{proof}
+
+
+\begin{comment}
+This is wrong but keeping for the LaTex when I rewrite: Note that the exponential generating function for $t(n) = \sum _{i} \dfrac{t(i)}{i!}x^i= e^{\frac{x^2}{2}}$.
+
+\begin{anote}
+Ethan. I rewrote this section up to this point. I think the next argument is really using the theorem that relates the total count to the count of primes.
+
+When Deb or someone else reworks the rest of this section the they should work out counts of number of plugs (always $n$0 and number of prime plugs ?? 
+\end{anote}
+
+\begin{anote}
+Probably in a paper, the above would just be referenced, but here's more on this for us. Look at the expansion $e^{\frac{x^2}{2}}= 1+ \dfrac{(\dfrac{x^2}{2})^1}{1!}+\dfrac{(\dfrac{x^2}{2})^2}{2!}+\dfrac{(\dfrac{x^2}{2})^3}{3!}+\cdots $  OK, I need to think about how to explain this better.... want to write up other parts now, but will go back to it later. Also I think I'm using the wrong latex commands for some of these, they don't look so good...
+\end{anote} 
+\end{comment}
+
+
+We directly compute several values of $\csp(n)$, the number of prime strips of length $2n$ , using the "brute force" equation that subtracts composite plugs corresponding to all compositions of $n$ into $k$ parts, where $ k \leq n$, 
 
 \begin{equation*}
-\mathbb{E}(\text{prongs } = \{2, 4, 6, \ldots\}, \text{number } = 3
-\text{ at most})
-\end{equation*}
-is the plug puzzle where you can use plugs with just an
-even number of prongs, at most  $3$ of each. Then
-\begin{equation*}
-  \mathbb{E}  = \mathbb{E}(\text{all plugs },\infty)
-\end{equation*}
-is the anything goes puzzle while
-the study of two prong plugs is
-\begin{equation*}
-    \mathbb{E}(\{T_k\}, \infty)
+    pt(n)=t(n)-\sum _{i_1+i_2 + \ldots i_k=n}pt(i_1)pt(i_2) \cdots pt(i_k)
 \end{equation*}
 
-The puzzle
-\begin{equation*}
-  \mathbb{E}(\{T_k\} 1 \text{ exactly})
-\end{equation*}
-is almost the original stackexchange question --- it uses  our new
-meaning for the first plug, and requires one of each but not one of
-each of the first $k$.
+For example, we note that $pt(1) =1$ and compute $\csp(2) = \cs(2) -pt(1)pt(1) = 3 - 1 \cdot 1 = 2$. Also we have $pt(3) = t(3) - pt(1)pt(2) - pt(2)pt(1) - pt(1)pt(1)pt(1) = 15 - 2 - 2- 1 = 10$.
 
+\begin{anote}
+Ethan: is this essentially Theorem~\ref{thm:primerecursion}?
+\end{anote}
+We obtain the following table with the first few values of $pt(n)$, along with the ratio $\dfrac{pt(n)}{t(n)}$.
 
-For any puzzle we try to understand the number and shape of solutions
-and prime solutions as a function of the size of the strip.
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ $n$ & $pt(n) $ & $\dfrac{pt(n)}{t(n)}$ \\ 
+ \hline
+ 1 & 1 & 1 \\ 
+ 2 & 2 & 0.67 \\ 
+ 3 & 10 & 0.67 \\ 
+ 4 & 74 & 0.70 \\ 
+ 5 & 706 & 0.75 \\ 
+6 & 8162 & 0.79 \\ 
+ \hline
+\end{tabular}
+\end{center}
+
+\section{Asymptotics}
+
+\begin{anote}
+Placeholder for work on asymptotic estimates or bounds for puzzles where we can make some progress but can't find  good closed form or known desriptions of the counting functions.
+\end{anote}
+
 \section{Infinite strips}
 
 \begin{anote}
 Placeholder for work on infinite prime strips.
 \end{anote}
-
 %\newpage
 %\LaTeX source.
 %\verbatiminput{\jobname}

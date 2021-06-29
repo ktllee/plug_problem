@@ -24,9 +24,11 @@ This puzzle was inspired by the question ["Number of ways to arrange pairs of in
 
 ### Directories
 
-[`solutions`](/solutions) contains lists of solutions for different set of plugs.
+[`documentation`](/documentation) contains more formal documentation in the form of [LaTeX document(s)](https://www.overleaf.com/read/fhqqdqyrnhrd).
 
 [`pseudocode`](/pseudocode) contains pseudocode and general brainstorming.
+
+[`solutions`](/solutions) contains lists of solutions for different set of plugs.
 
 [`unused`](/unused) contains code that has been integrated into active code and which no longer need be used.
 

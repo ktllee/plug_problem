@@ -34,6 +34,8 @@ This puzzle was inspired by the question ["Number of ways to arrange pairs of in
 
 `recursive_solver.py` is code to recursively solve for valid arrangements of any given list of Plugs.  **In Progress. Functional.**
 
+`flex_solver.py` is code to recursively solve for valid arrangements given types of plugs and a total length.  **In Progress.  Functional**
+
 `plug_class.py` contains the Plug class.  **Functional.**
 
 `strip_class.py` contains the Strip class. **Functional.**

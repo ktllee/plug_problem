@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-last modified: 06/22/21
+last modified: 06/29/21
 
 @author: katie
 
@@ -23,11 +23,11 @@ def solve(plug_list, strip = None, style = 'p'):
             optional:  
                 strip - a Strip with the current plugs to start solutions from
                 style - str of attribute to init Plugs from.
-                    'z' or 'zero_str' for zero_str (default),
-                    's' or 'str_num' (*sigh*) for num_str,
+                    'z' or 'zero_str' for zero_str,
+                    's' or 'str_num' for str_num,
                     'n' or 'number' for number,
                     'c' or 'classic' for classic,
-                    'p' or 'plug' for full Plugs
+                    'p' or 'plug' for full Plugs (default)
         returns: a set of solutions
         
         recursively finds solutions for the plug problem.

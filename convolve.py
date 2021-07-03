@@ -7,6 +7,7 @@ last modified: 07/01/21
 
 @author: Ethan Bolker
 """
+import sys
 
 def p2t( p ):
     ''' 
@@ -46,11 +47,18 @@ def execute(x):
     print(f"p2t: {t}")
     p = t2p(x)
     print(f"t2p {p}")
-    print(f"p2t(t2p): {p2t(p)}\n")
+    check = t2p(t)
+    print(f"should see True {x == check}")
+#     print(f"p2t(t2p): {p2t(p)}\n")
 
 #  Execute for testing
 if __name__ == "__main__":
-    print("testing")
+
+    if (len(sys.argv) == 1):
+        print(f"usage: python {sys.argv[0]} a b c ...")
+    else:
+        new =  list(map(int, sys.argv[1:]))
+        execute(new)
 
     ones = [1,1,1,1,1,1]
     powers = [1,2,4,8,16,32]
@@ -58,13 +66,12 @@ if __name__ == "__main__":
     plugt2 = [1,0,0,0,0,0,0]
     interesting = [0,0,0,1,0,2,0,1,0,1,0,1,0,1,0,1]
     binom = [1,5,10,10,5,1]
-    
-    execute(interesting)
-    execute(ints)
-#     
+    unbells = [1, 1, 2, 6, 22, 92, 426, 214]
+    bells = [1, 2, 5, 15, 52, 203, 877, 4140]
+#     execute(interesting)
+#     execute(ints)
 #     execute(ones)
 #     execute(powers)
 #     execute(plugt2)
-# 
 
 

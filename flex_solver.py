@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-last modified: 06/29/21
+last modified: 07/06/21
 
 @author: katie
 
@@ -17,20 +17,21 @@ description:
 from plug_class import Plug
 from strip_class import Strip
 
-def flex(length, plug_list, strip = None, style = 's'):
+def flex(length, plug_list, strip = None, style = 's', result_style = 's'):
     ''' takes:
             mandatory: 
                 length - an int for total length to begin with.
                 plug_list - a list or dict of the plugs to be used.
                 (note that lists given assume endless plugs)
             optional:  
-                strip - a Strip with the current plugs to start solutions from
-                style - str of attribute to init Plugs from.
+                strip - a Strip with the current plugs to start from.
+                style, result - str of attribute to init and return Plugs.
                     'z' or 'zero_str' for zero_str,
                     's' or 'str_num' for str_num (default),
                     'n' or 'number' for number,
-                    'c' or 'classic' for classic,
-                    'p' or 'plug' for full Plugs
+                    'c' or 'classic' for classic (style only),
+                    'p' or 'plug' for full Plugs,
+                    'f' or 'full' for full Strips (result_style only)
         returns: a set of solutions
         
         recursively finds solutions for the plug problem.
@@ -57,10 +58,12 @@ def flex(length, plug_list, strip = None, style = 's'):
     else:
         raise TypeError('plug_list must be a list or dict')
     
-    # standardize style input
-    if not isinstance(style, str):
-        raise TypeError('style must be a str')
+    # standardize style inputs
+    if not all((isinstance(style, str),
+                isinstance(result_style, str))):
+        raise TypeError('styles must be str')
     style = style[0]
+    result_style = result_style[0]
     
     # if no strip yet initiated, create one
     if strip == None:
@@ -75,7 +78,21 @@ def flex(length, plug_list, strip = None, style = 's'):
     
     # base case - full strip, time to return
     if strip.filled.count('0') == 0:
-        new_sol = [x.str_num for x in strip.plug_list]
+        
+        # apply different result options
+        if result_style == 's':
+            new_sol = [x.str_num for x in strip.plug_list]
+        elif result_style == 'z':
+            new_sol = [x.zero_str for x in strip.plug_list]
+        elif result_style == 'n':
+            new_sol = [x.zero_str for x in strip.plug_list]
+        elif result_style == 'p':
+            new_sol = [x.copy() for x in strip.plug_list]
+        elif result_style == 'f':
+            new_sol = strip.copy()
+        else:
+            raise ValueError('result_style must be a valid style')
+        
         return [new_sol]
     
     # list of possible next plugs
@@ -103,7 +120,7 @@ def flex(length, plug_list, strip = None, style = 's'):
                 new_plugs[option] -= 1
             
             # call flex
-            recur = flex(length, new_plugs, new_strip, style)
+            recur = flex(length, new_plugs, new_strip, style, result_style)
             solutions.extend(recur)
             
     # remove doubles
@@ -137,6 +154,8 @@ if __name__ == '__main__':
     solve_c2 = []
     solve_c7 = [['5', '1', '5', '5'],
                 ['5', '5', '5', '1']]
+    solve_c7z = [['101', '1', '101', '101'],
+                 ['101', '101', '101', '1']] 
     
     # answers from function
     ans_a1 = flex(3, test_a1)
@@ -145,13 +164,15 @@ if __name__ == '__main__':
     ans_b6 = flex(6, test_b)
     ans_c2 = flex(2, test_c)
     ans_c7 = flex(7, test_c)
+    ans_c7z = flex(7, test_c, result_style = 'z')
     
     tester = [('small dict', ans_a1, solve_a),
               ('small list', ans_a2, solve_a),
               ('empty, inf', ans_b3, solve_b3),
               ('some, inf', ans_b6, solve_b6),
               ('empty, lim', ans_c2, solve_c2),
-              ('some, lim', ans_c7, solve_c7)]
+              ('some, lim', ans_c7, solve_c7),
+              ('some, result z', ans_c7z, solve_c7z)]
     
     # init list of failures
     fails = []

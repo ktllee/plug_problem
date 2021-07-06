@@ -23,11 +23,6 @@
 \newtheorem{example}[theorem]{Example}
 \numberwithin{equation}{section}
 
-\DeclareMathOperator{\cp}{cp} % count plugs
-\DeclareMathOperator{\cpp}{cpp} % count prime plugs
-\DeclareMathOperator{\cs}{cs} % count strips
-\DeclareMathOperator{\csp}{csp} % count prime strips
-
 \newenvironment{anote}
                {{\textcolor{blue}{Note:}}
                  \itshape
@@ -38,9 +33,9 @@
 \mbox{{\textbf\texttt #1}}
 }
 
-\newcommand{\puzzle}{%
+\newcommand{\puzzle}[1]{%
    \ensuremath{
-   \mathbb{E}
+   \mathbb{#1}
    }
 }
 
@@ -62,7 +57,6 @@ Debra K. Borkovitz\\
 \begin{anote}
 Describe the source of the problem and the group makeup
 \end{anote}
-
 
 
 \section{Plugs, Strips and Puzzles}
@@ -110,7 +104,7 @@ pairs such that all the plugs can be inserted simultaneously at
 
 A \emph{plug puzzle}, or, for us, just a puzzle, specifies the types amd numbers of plugs you are allowed to use to fill a strip --- something like
 \begin{equation*}
-    \puzzle(\text{list of allowable plug types},\text{restrictions on numbers of plugs of each type})
+    \puzzle{E}(\text{list of allowable plug types},\text{restrictions on numbers of plugs of each type})
 \end{equation*}
 
 A \emph{solution} of length $n$ is a strip with $n$ slots filled with plugs that are consistent with the restrictions in the puzzle specification.
@@ -125,17 +119,17 @@ Remember to say somewhere (perhaps not here) that plugs and solutions have a lef
 
 The stackexchange post posed a sequence of puzzles:
 \begin{equation*}
-\mathbb{T}_k = \puzzle( (\text{the one prong plug}, T_3, T_4, \ldots. T_k), \text{exactly 1 of each } ).
+\mathbb{T}_k = \puzzle{E}( \{\text{the one prong plug}, T_3, T_4, \ldots. T_k\}, \text{exactly 1 of each } ).
 \end{equation*}
 The only possible solutions are strips of length $2k+1$. The question asks for an efficient algorithm to count them.
 
  \section{Anything goes}
  
-That puzzle spurred our investigations,bput it is much too hard to start out with. In particular, we discovered that restricting the number of plugs of each type is a stumbling block. So for a while we will study just puzzles that specify the allowed plug types, with no limit on the number of each that can appear in a solution.
+That puzzle spurred our investigations,but it is much too hard to start out with. In particular, we discovered that restricting the number of plugs of each type is a stumbling block. So for a while we will study just puzzles that specify the allowed plug types, with no limit on the number of each that can appear in a solution.
 
-In the \emph{anything goes}  puzzle $\mathbb{A}$  you may use any plugs as oftem as you wish:
+In the \emph{anything goes}  puzzle $\puzzle{A}$  you may use any plugs as oftem as you wish:
 \begin{equation*}
-  \mathbb{A}  = \puzzle(\text{all plug types } )
+  \puzzle{A}  = \puzzle{E}(\text{all plug types} )
 \end{equation*}
 Counting solutions begins to put us in touch with some classical notions
 in combinatorics.
@@ -158,27 +152,33 @@ $\{1, 2, 3, 5, 15, 52, \ldots$  count these.
 
 There is more information in a a solved  strip than the shape of
 the partition that defines it. For example, two copies of \plug{101}
-solve a strip of length $4$. So do two copies of \plug{11}. Both solutions correspond to a partition the four element set of slots
+solve a strip of length $4$. So do two copies of \plug{11}. Both solutions correspond to a partition of the four element set of slots
 into two sets of two slots each, but their geometry is different.
 
 In a  power strip of length $n$ there are $n-1$ \emph{gaps} between
 slots. The \emph{thickness} or \emph{thickness array} is a the
 sequence of integers that counts the number of plugs that cover each
-of the gaps. A solution (that is, a filled strip) is \emph{prime} if
+of the gaps. A solution (that is, a filled strip) is \emph{prime} or \emph{atomic}if
 its thickness is never $0$. Any solution is a concatenation of prime
 filled strips: the \emph{factors}.
 
 When a puzzle specifies no restrictions on the number of each kind of plug then factors and products (concatenations) of solutions are themselves solutions.  When that  happens we can relate the number of prime solutions and the number of solutions.
 
-Let $\cs(n)$ be the number of solved strips of length $n$ and
-$\csp(n)$ the number of prime solutions of length $n$. 
-Let $\cp(n)$ be the number of solved strips that use $n$ plugs and
-$\cpp(n)$ the number of prime solutions that use $n$ plugs.
+Let   $S(n)$ be the number of solved strips of length $n$ and
+ $S'(n)$ the number of prime solutions of length $n$. 
+ 
+Let $P(n)$  be the number of solved strips that use $n$ plugs and
+  $P'(n)$ the number of prime solutions that use $n$ plugs.
+
+NOT QUITE RIGHT YET.  $P$ and $P'$ must be carefully defined to count the number of prime plugs actually used in solutions of some length or bounded length. To see why, note that for the anything goes puzzle there are infinitely many one plug primes: the plugs with all bits \plug{1}.
+
+When necessary we will write $S(\puzzle{E},n)$ when we need to make clear which puzzle we are counting.
 
 Some of these counts may be $0$. Consider the
 puzzle that uses just the classic  plug \plug{11}.
-Then $cs(n) = 1$ if $n$ is even, $0$ if $n$ is odd. $csp(2) =1$ and
+Then $S(n) = 1$ if $n$ is even, $0$ if $n$ is odd. $S'(2) =1$ and
 $0$  otherwise.
+
 
 We did a brute force calculation for the number of prime solutions to the anything goes puzzle, and found $\{1,1,2,6,22, \ldots\}$. That sequence seems to be
 \href{https://oeis.org/A074664}{A074664} in
@@ -187,26 +187,31 @@ We did a brute force calculation for the number of prime solutions to the anythi
 strongly support
 
 \begin{conjecture}
-The prime solutions to problem $\mathbb{A}$ are characterized by the
+The prime solutions to problem $\puzzle{A}$ are characterized by the
 equivalent conditions defining the OEIS sequence A074664.
 \end{conjecture}
 
-This easy theorem might help prove the conjecture:
+This easy theorem might help prove the conjecture. It shows that each of $S$ and $S'$ (or $P$ and $P'$) determines the other.
 
 \begin{theorem}\label{thm:primerecursion}
 Suppose that every factor of a solved strip solves its smaller strip and any concatenation of solved strips is a solution.
- Then
-$$
-\cs(n) = \csp(1)\cs(n-1) +  \csp(2)\cs(n-2) + \cdots + \csp(n-2)\cs(2) + \csp(n)
-$$
-and the same recursion hold for the counts $\cp)$ and $\cpp)$.
+
+ Then the  first $k$ for which $S(k) > 0$ is the same as the first $k$ for which $S'(k) > 0$. For that $k$ we have $S(k) = S'(k)$ and for all $n$
+ 
+\begin{equation}\label{eq:convolution}
+   S(n) = S'(1)S(n-1) +  S'(2)S(n-2) + \cdots +   S'(n-1)S(1) + S'(n) .
+\end{equation}
+
+The same assertions  hold for the counts $P(n)$ and $P'(n)$.
 \end{theorem}
 \begin{proof}
 Each solved strip begins with a prime solution of length $k \le n$ which can be
-chosen $\csp(k)$ ways and ends with one of the $\cs(n-k)$ solved strips of
+chosen $S'(k)$ ways and ends with one of the $S(n-k)$ solved strips of
 length $n-k$. 
-Replace "length" by "nimber of plugs" to prove the second assertion.
+Replace ``length" by ``number of plugs" to prove the second assertion.
 \end{proof}
+
+Equation~\ref{eq:convolution} id as kind of convolution. It appears in the OEIS discussion of \href{https://oeis.org/A074664}{OEIS A074664}. In Section~\ref{sec:convolution} we discuss it further.
 
 \begin{anote}
 So far we've used thickness only to find factors. But there is
@@ -220,6 +225,9 @@ What patterns are possible in the thickness vector?
 Also a section by Debbie.  Also again, not really a theorem and notation should probably be changed. Table needs to be better labeled.  I have similar work for when the plug 1 is allowed that I ran out of time before I put up. 
 \end{anote}
 
+\begin{anote}
+Use some letter other than $S$ below since that's now used for solution counts.
+\end{anote}
 \begin{theorem}
 Let $S'(n,k)$ represent the number of set partitions with no singletons, i.e. the number of solutions to the plug problem with $k$ plugs, where the plug $1$ is not allowed. Then $S'(n,k) = kS'(n-1,k) + (n-1)S'(n-2,k-1)$, with $S'(2,1)=1$ and $S'(n,k) =0$ when $k > \frac{n}{2}$
 \end{theorem}
@@ -258,11 +266,20 @@ When we do enough of these we may see metapatterns.
     This puzzle has just one prime, the plug itself, of length $k$. 
     \item $\plug{100\ldots 1}$ These are the classic plugs. 
     \begin{conjecture}
-    Using just the classic plug of length $k$, the only prime is the  one of length $2k-2$ constructed from $k-2$ copies in the obvious way.
+    Using just the classic plug of length $k$, the only prime is the  one of length $2k-2$ constructed from $k-1$ copies in the obvious way.
     \end{conjecture}
     
     \item $\plug{1011}$
     This puzzle has no solutions.
+    \item $(a,a, b, a, a)$ tiles an infinite strip, but has no primes. Note that this \emph{block} notation (which maybe we should change) represents a block of ones of length $a$ followed by a block of zeroes of length $a$, etc. An example is $\plug{1100111110011}$.
+    \item $(k,mk,k,mk,...,mk,k)$ The plug formed with $n$ blocks of 1's of length $k$ each and $n-1$ blocks of zeroes of length $mk$ each, where $k,m \in {\mathbb N}$, then $m+1$ of these plugs form a prime of length $(m+1)nk$.
+    
+    \begin{anote}
+    (DB)This is a generalization of Adam's result for the classic plug. The notation probably needs some clean up. I have been using the subset of positions notation to represent plugs. Then if $P$ is the set of prong positions with first prong at 0, we can use $P_k$ to represent the plug that adds $k$ to every number in $P$ ($k$ can be negative, and more generally we don't have to use $P_0$ in our puzzle solution -- I think this will be important if we want to use this notation for puzzles using more than one type of plug) and we are looking for a pairwise disjoint set of these translations that covers an interval. In the case of the above example, we have $P_0 \cup P_k \cup P_{2k} \ldots \cup P_{mk}$ covers the interval $[0,(m+1)nk]$ -- someone please check as there are a lot of variables here. I am also thinking about defining a scaling operation on plugs that multiplies the lengths of the blocks of 0's and 1's by the same thing. If we looked at the strips as continuous instead of discrete, then this change really does just change the unit, it doesn't change how the plugs fit together. Maybe there's another operation that would just duplicate aspects of the plug.... thinking about simpler ways to think about what I wrote here....  these are related to the classic plugs if you can just multiply the block sizes by the same thing and then also sort of repeat the same thing.... 
+    \end{anote}
+    \begin{conjecture}
+    The plugs of the form $(k,mk,k,mk,...,mk,k)$ are the only plugs that form primes with only one type of plug. 
+    \end{conjecture}
     
 
         \end{itemize}
@@ -273,6 +290,8 @@ Are there any single plug puzzles with more than one prime?
 \begin{question}
 Can we characterize the single plug puzzles with no solutions?
 \end{question}
+
+
 \section{Puzzles with two plug types}
 
 
@@ -288,7 +307,7 @@ First attempt:
         \begin{center}
         \begin{tabular}{ |c|c|c|c|c| } 
          \hline
-         length & $\csp$ & $\cs$ \\ 
+         length & $S'$ & $S$ \\ 
          \hline
         2 & 1 & 1\\
         4 & 1 & 2\\
@@ -305,11 +324,11 @@ First attempt:
 Deb's work:
 \end{anote}
 
-In this section we count strips that can be made eith just the two prong plugs:
+In this section we study the two prong plug puzzle
 \begin{equation*}
     \mathbb{T} = \puzzle(\{T_k | k = 1, 2, \ldots\})
 \end{equation*}
-This is the stackexchange puzzle, using $T_0$ instead of the single prong plug \plug(1), with no restrictions on the number of each kind of plug.
+This is a variant of the stackexchange puzzle, using $T_0$ instead of the single prong plug \plug(1), with no restrictions on the number of each kind of plug.
 
 \begin{anote}
 What is below doesn't really warrant a theorem... maybe a proposition or a lemma or just within the text, not sure. Also the $t(n)$ notation is temporary pending my comment in the Specifying Variations section. Also should we use length $n$ for the strip for consistency, which would make all odd lengths 0, or use $2n$ as I did below?
@@ -318,7 +337,7 @@ What is below doesn't really warrant a theorem... maybe a proposition or a lemma
 \begin{theorem}
 For the puzzle $\mathbb{T}$ there are no solutions of odd length. For each $n$,
 \begin{equation*}
-    \cs(2n)=(2n-1) \cdot (2n-3) \cdots 3 \cdot 1.
+    S(2n)= (2n-1)!! = (2n-1) \cdot (2n-3) \cdots 3 \cdot 1.
 \end{equation*}
 \end{theorem}
 
@@ -330,11 +349,6 @@ Solutions of length $2n$ correspond to   partitions of the set of $2n$ slots int
 \begin{comment}
 This is wrong but keeping for the LaTex when I rewrite: Note that the exponential generating function for $t(n) = \sum _{i} \dfrac{t(i)}{i!}x^i= e^{\frac{x^2}{2}}$.
 
-\begin{anote}
-Ethan. I rewrote this section up to this point. I think the next argument is really using the theorem that relates the total count to the count of primes.
-
-When Deb or someone else reworks the rest of this section the they should work out counts of number of plugs (always $n$0 and number of prime plugs ?? 
-\end{anote}
 
 \begin{anote}
 Probably in a paper, the above would just be referenced, but here's more on this for us. Look at the expansion $e^{\frac{x^2}{2}}= 1+ \dfrac{(\dfrac{x^2}{2})^1}{1!}+\dfrac{(\dfrac{x^2}{2})^2}{2!}+\dfrac{(\dfrac{x^2}{2})^3}{3!}+\cdots $  OK, I need to think about how to explain this better.... want to write up other parts now, but will go back to it later. Also I think I'm using the wrong latex commands for some of these, they don't look so good...
@@ -342,23 +356,25 @@ Probably in a paper, the above would just be referenced, but here's more on this
 \end{comment}
 
 
-We directly compute several values of $\csp(n)$, the number of prime strips of length $2n$ , using the "brute force" equation that subtracts composite plugs corresponding to all compositions of $n$ into $k$ parts, where $ k \leq n$, 
-
+Theorem~\ref{thm:primerecursion} applied to the sequence
 \begin{equation*}
-    pt(n)=t(n)-\sum _{i_1+i_2 + \ldots i_k=n}pt(i_1)pt(i_2) \cdots pt(i_k)
+    0, 1, 0, 3, 0, 15, 0, 105, 0, 945, 0, 10395, \ldots
+\end{equation*} 
+shows that the number of length $n$ prime plugs for this puzzle is the sequence
+\begin{equation*}
+    0, 1, 0, 2, 0, 10,  0, 74, 0, 706, 0, 8162, \ldots 
 \end{equation*}
 
-For example, we note that $pt(1) =1$ and compute $\csp(2) = \cs(2) -pt(1)pt(1) = 3 - 1 \cdot 1 = 2$. Also we have $pt(3) = t(3) - pt(1)pt(2) - pt(2)pt(1) - pt(1)pt(1)pt(1) = 15 - 2 - 2- 1 = 10$.
+\begin{conjecture}
+The nonzero entries in that sequence match \href{https:oeis.org/A000698}{A000698} in the OEIS. The comment there explictly mentions the convolution construction from the Bell numbers 
+\end{conjecture}
 
-\begin{anote}
-Ethan: is this essentially Theorem~\ref{thm:primerecursion}?
-\end{anote}
-We obtain the following table with the first few values of $pt(n)$, along with the ratio $\dfrac{pt(n)}{t(n)}$.
+We obtain the following table with the first few nonzero values of $S(n)$, along with the ratio $\dfrac{S'(n)}{S(n)}$.
 
 \begin{center}
 \begin{tabular}{ |c|c|c| } 
  \hline
- $n$ & $pt(n) $ & $\dfrac{pt(n)}{t(n)}$ \\ 
+ $n$ & $S(n) $ & $\dfrac{S'(n)}{S(n)}$ \\ 
  \hline
  1 & 1 & 1 \\ 
  2 & 2 & 0.67 \\ 
@@ -381,6 +397,77 @@ Placeholder for work on asymptotic estimates or bounds for puzzles where we can 
 \begin{anote}
 Placeholder for work on infinite prime strips.
 \end{anote}
+
+With the plugs $A = $\plug{10101}$ and $B = \plug{1011101} you can construct many doubly infinite filled strips since each interlocks with itself and with the other at either end. 
+
+The sequence of $A$'s and $B$'s can be made aperiodic in many ways. For example, start with the singly infinite
+\begin{equation}
+    ABAABAAABAAAAB\ldots
+\end{equation}
+then link it to its reverse.
+
+In fact, starting with the \href{https://en.wikipedia.org/wiki/Thue-Morse_sequence}{Thue Morse sequence}
+\footnote{ Recursively, start with $A$. For each sequence of length a power of 2, make a new version swapping $A$ and $B$ and append.}
+you can build such an aperiodic strip without ever using three of a kind in a row:  
+
+\begin{equation*}
+  A B  BA BAAB BAABABBA \ldots  
+\end{equation*}
+
+\begin{conjecture}
+This sequence is clearly aperiodic in $A$ and $B$. Check that it is also aperiodic in bits.
+\end{conjecture}
+\section{Convolution}\ref{sec:convolution}
+
+The calculation in Theorem\ref{thm:primerecursion} is (potentially) interesting for its own sake, not just for our applications to plug problems. The functions t2p() and p2t() that convert between total counts and prime counts each invert the other, so each is bijective when applied to arbitrary sequences of integers (or sequences of real numbers, or sequences of elements from any ring).
+
+p2t always increases entries. It's a kind of integration, counting products given prime factors. Its inverse is a kind of differentiation. 
+
+If you play with interesting sequences you can find interesting results/coincidences. For example
+
+\begin{verbatim}
+> python3.6 convolve.py   1 0 1 0 1 0 1 0 1
+input [1, 0, 1, 0, 1, 0, 1, 0, 1]
+p2t: [1, 1, 2, 3, 5, 8, 13, 21, 34]
+t2p [1, -1, 2, -3, 5, -8, 13, -21, 34]
+\end{verbatim}
+
+When you convolve some counting sequence the result may count something related. There are probably theorems lurking here.
+
+The Catalan numbers (1,1,2,5,14,42,132\ldots) convolve almost to themselves under p2t --- only the leading $1$ is dropped. An interesting application of the Catalan numbers is that the $n$th Catalan number $C_n$ for $n\geq 0$ counts the number of valid ways to arrange $n$ open parentheses and $n$ closed parentheses.
+
+Suppose we introduce an additional count $C_n'$ for the number of prime arrangements of $n$ open parentheses and $n$ closed parentheses (i.e. arrangements in which the initial open parenthesis and final closed parenthesis are linked). It follows that $C_n'$ is just the number of ways to arrange the parentheses on the interior, of which there are n-1 of each. So, $C_{n+1}'=C_n$.
+
+It's easy to see that $C_1=C'_1=1$ and thus $C'_2=C_1=1.$ Passing the list $[C'_1, C'_2]=[1,1]$ to p2t() in convolve.py outputs $[C_1, C_2]=[1,2]$. This output also tells us $C'_3=C_2=2$ — continuing this process we construct the Catalan numbers (omitting the leading 1) through convolution, as shown in full below:
+
+\begin{verbatim}
+python3.6 convolve.py  1 1 2 5 14 42 132 429 1430
+input [1, 1, 2, 5, 14, 42, 132, 429, 1430]
+p2t: [1, 2, 5, 14, 42, 132, 429, 1430, 4862]
+t2p [1, 0, 1, 2, 6, 18, 57, 186, 622]
+\end{verbatim}
+ Under t2p they convolve to 
+\href{https://oeis.org/A000957}{OEIS A000957}:
+\begin{verbatim}
+	Fine's sequence (or Fine numbers):
+	number of relations of valence >= 1 on an n-set;
+	also number of ordered rooted trees with n edges 
+	having root of even degree. 
+	
+\end{verbatim}
+p2t and t2p each essentially permutes the set of sequences. Is there any global structure that's revealed?
+
+\begin{question}
+
+p2t  and  t2p  each  essentially  permutes  the  set  of  sequences.   Is  there  any global structure that’s revealed?
+\end{question}
+\begin{question}
+
+\end{question}
+Is there a continuous form of this kind of self convolution? Something like
+\begin{equation*}
+    g(x) = \int_0^x f(t)f(x-t)dt
+\end{equation*}
 %\newpage
 %\LaTeX source.
 %\verbatiminput{\jobname}

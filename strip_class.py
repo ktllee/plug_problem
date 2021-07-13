@@ -45,6 +45,8 @@ class Strip:
         flip()
         reset()
         copy()
+        is_prime()
+        plug_count()
     """
     
     def __init__(self, length, list_plugs = [], list_style = 'n'):
@@ -381,6 +383,25 @@ class Strip:
         new = Strip(self.length, new_plugs, 'p')
         
         return new
+    
+    def is_prime(self):
+        ''' takes: self
+            returns: bool for if the strip is prime
+            
+            strips are prime if the thickness is never 0.
+            note that strips of length 1 are always prime.
+        '''
+        
+        return self.thickness.count(0) == 0
+    
+    def plug_count(self):
+        ''' takes: self
+            returns: number of plugs currently in the strip
+            
+            a shortcut.
+        '''
+        
+        return len(self.plug_list)
     
 #####
 

@@ -12,6 +12,8 @@
 \usepackage{hyperref}
 \usepackage{verbatim}
 \usepackage{comment}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}[theorem]{Definition}
@@ -58,7 +60,15 @@ Debra K. Borkovitz\\
 Describe the source of the problem and the group makeup
 \end{anote}
 
+\begin{quote}
+    Given a sequence $0,1,1,2,2,3,3,...,n,n$ find the number of ways to arrange the elements in the sequence so that there's exactly one digit between the two $1$'s, two digits between the two $2$'s, three digits between the two $3$'s, so on and so forth, and there are exactly $n$ digits between the two $n$'s.
 
+For $n=2$, a possible solution would be $12102$. For $n=5$, a possible solution would be $53141352402$.\cite{originalproblem}
+\end{quote}
+
+\begin{anote}
+Reformulate and generalize to plugs on a strip. Pictures of our 3d printed incarnations.
+\end{anote}
 \section{Plugs, Strips and Puzzles}
 
 Our mathematical model for a plug is a bit string, for example
@@ -222,18 +232,18 @@ What patterns are possible in the thickness vector?
 \section {Disallowing the Plug $1$}
 
 \begin{anote}
-Also a section by Debbie.  Also again, not really a theorem and notation should probably be changed. Table needs to be better labeled.  I have similar work for when the plug 1 is allowed that I ran out of time before I put up. 
+Also a section by Debbie.  Also again, not really a theorem and notation should probably be changed (I just changed $S'$ to $B'$ because we use $S'$ for soemthing else). Table needs to be better labeled.  I have similar work for when the plug 1 is allowed that I ran out of time before I put up. 
 \end{anote}
 
 \begin{anote}
 Use some letter other than $S$ below since that's now used for solution counts.
 \end{anote}
 \begin{theorem}
-Let $S'(n,k)$ represent the number of set partitions with no singletons, i.e. the number of solutions to the plug problem with $k$ plugs, where the plug $1$ is not allowed. Then $S'(n,k) = kS'(n-1,k) + (n-1)S'(n-2,k-1)$, with $S'(2,1)=1$ and $S'(n,k) =0$ when $k > \frac{n}{2}$
+Let $B'(n,k)$ represent the number of set partitions with no singletons, i.e. the number of solutions to the plug problem with $k$ plugs, where the plug $1$ is not allowed. Then $B'(n,k) = kB'(n-1,k) + (n-1)B'(n-2,k-1)$, with $B'(2,1)=1$ and $B'(n,k) =0$ when $k > \frac{n}{2}$
 \end{theorem}
 
 \begin{proof}
-Consider adding position $n-1$ in a strip of length $n$ (where position numbering starts from $0$) to form a solution with $k$ plugs. We can add a prong at position $n-1$ to one of the existing plugs in a solution for a strip of length $n-1$ with $k$ plugs in $kS'(n-1,k)$, which counts all possibilities where position $n-1$ is part of a plug with 3 or more prongs. If position $n-1$ is part of a plug with 2 prongs, then we have $n-1$ choices for the other end of the plug, and we have a total of  $(n-1)S'(n-2,k-1)$ solutions. 
+Consider adding position $n-1$ in a strip of length $n$ (where position numbering starts from $0$) to form a solution with $k$ plugs. We can add a prong at position $n-1$ to one of the existing plugs in a solution for a strip of length $n-1$ with $k$ plugs in $kB'(n-1,k)$, which counts all possibilities where position $n-1$ is part of a plug with 3 or more prongs. If position $n-1$ is part of a plug with 2 prongs, then we have $n-1$ choices for the other end of the plug, and we have a total of  $(n-1)B'(n-2,k-1)$ solutions. 
 \end{proof}
 
 The solutions form a triangle, with $n$ on the vertical axis and $k$ on the horizontal:
@@ -254,7 +264,22 @@ The solutions form a triangle, with $n$ on the vertical axis and $k$ on the hori
  \hline
 \end{tabular}
 \end{center}
+\begin{theorem}
+Let $B'(n)$ be the sum of the numbers in row $n$ in the table above, i.e. the total number of strips of length $n$ with singletons disallowed. The first few values of $B'(n)$ are $0,1,1,4,11,21,162$. Let $B(n)$ be the $nth$ Bell Number, which counts the total number of strips of length $n$. Then
+\begin{equation*}
+   B'(n+1)=B(n)-B'(n), 
+\end{equation*}
+that is, the number of strips of length $n+1$ that \underline{do not} include a singleton plug is equal to the number strips of length $n$ that \underline{do} include a singleton plug. 
 
+\end{theorem}
+
+\begin{proof}
+Let $\mathscr{B}'_n$ and $\mathscr{B}''_n$ be respectively, the sets of all strips of length $n$ without singletons and strips of length $n$ with singletons. We define a map from $\mathscr{B}''_n$ to $\mathscr{B}'_{n+1}$ by considering a strip of length $n$ with at least one singleton, and then  creating a new plug by joining all the singletons with prong $n+1$. This plug is not a singleton and together with the non-singleton plugs from the original, creates a new strip in $\mathscr{B}'_{n+1}$. The map is easily reversible, by taking a strip of length $n+1$ with no singletons, dropping prong $n+1$ and making everything it's connected to into singletons. Thus we've found a bijection. 
+\end{proof}
+
+\begin{anote}
+Language above needs cleaning up, and not sure about notation either. 
+\end{anote}
 
 \section{Puzzles with just one plug type}
 
@@ -386,11 +411,47 @@ We obtain the following table with the first few nonzero values of $S(n)$, along
 \end{tabular}
 \end{center}
 
+
+\section{\plug{$11\ldots1$}}
+
+ \begin{anote}
+ Some thoughts about the constant plugs. Not sure how deep or interesting they are or might be.
+ \end{anote}
+ 
+ Let  
+ \begin{equation*}
+     R_k = \plug{$11\ldots1$}\ \   (k \  \plug{1}\text{'s})
+ \end{equation*}
+ 
+ The $S(n)$ solutions to the puzzle $\puzzle{R} = \puzzle{E}(\text{all }  R_k)$ correspond to the \emph{compositions} of $n$: ways to write $n$ as an ordered sum of nonnegative integers. Thus $S(n) = 2^{n-1}$.
+ 
+ The only prime solutions are the plugs themselves, so $S'(n) = 1$ for all $n$. Convolution confirms that.
+ 
+ The puzzles
+ \begin{equation*}
+     \puzzle{R}(s,t) = \puzzle{E}(\{R_s, R_t\})
+ \end{equation*}
+ are a little more interesting. We can assume $s$ and $t$ are relatively prime. Then $S(n)$ is the number of nonnegative integral solutions to the diophantine equation
+ \begin{equation*}
+     sx + ty = n .
+ \end{equation*}
+ when the order of the $s+t$ summands is taken into account.
+ For example, when $s=3, t=5$ it's the sequence
+  \begin{equation*}
+    0, 0, 1, 0, 1, 1, 0, 2, 1, 1, 3, 1, 3, 4, 2, 6, 5, 5, 10, 7, 11, 15, \ldots
+ \end{equation*}
+ with the a two term recursion
+  \begin{equation*}
+     S(n) = S(n-3) + S(n-5).
+ \end{equation*}
+ 
+ In general, the number of solutions to $\puzzle{R}(s,t)$ grows quadratically. The number of solutions $S(n)$ for a subset of $m$ of the plugs $R_k$ will grow at rate $n^m$.  
 \section{Asymptotics}
 
-\begin{anote}
-Placeholder for work on asymptotic estimates or bounds for puzzles where we can make some progress but can't find  good closed form or known desriptions of the counting functions.
-\end{anote}
+\begin{conjecture}
+Let $\mathcal{P}$ be a set of plugs.
+The number of solutions $S(n)$ to $\puzzle{E}(\mathcal{P})$ grows as $n^{|\mathcal{P}|}$  if $\mathcal{P}$ is finite, exponentially otherwise.
+\end{conjecture}
 
 \section{Infinite strips}
 
@@ -468,6 +529,40 @@ Is there a continuous form of this kind of self convolution? Something like
 \begin{equation*}
     g(x) = \int_0^x f(t)f(x-t)dt
 \end{equation*}
+
+\begin{theorem}
+Let $S(n)$ and $S'(n)$ be defined as in Theorem~\ref{thm:primerecursion}, with $S(0)=1$ and $S'(0)=0$. Let 
+\begin{equation*}
+    S(x)=S(0)+S(1)x+S(2)x^2 + \ldots S(n)x^n + \ldots
+\end{equation*}
+and 
+\begin{equation*}
+  S'(x)=S'(0)+S'(1)x+S'(2)x^2 + \ldots S'(n)x^n + \ldots  
+\end{equation*}
+be the ordinary generating functions for $S(n)$ and $S'(n)$ respectively. Then 
+\begin{equation*}
+    S(x) = \dfrac{1}{1-S'(x)}
+\end{equation*}
+
+\begin{anote}
+it would be better to use lower case letters for the sequences and upper case for the generating function -- less confusing and more standard. 
+\end{anote}
+\end{theorem}
+\begin{proof}
+We rewrite the equation in Theorem~\ref{thm:primerecursion} as 
+\begin{equation*}
+    S(x)-1=S'(x)S(x)
+\end{equation*}
+and solve for $S(x)$. See
+\end{proof}
+
+\begin{thebibliography}{100}
+
+\bibitem{originalproblem}
+Number of ways to arrange pairs of integers with distance constraint
+\href{https://math.stackexchange.com/questions/4124452/number-of-ways-to-arrange-pairs-of-integers-with-distance-constraint}{math.stackexchange.com/questions/4124452/number-of-ways-to-arrange-pairs-of-integers-with-distance-constraint}
+
+\end{thebibliography}
 %\newpage
 %\LaTeX source.
 %\verbatiminput{\jobname}

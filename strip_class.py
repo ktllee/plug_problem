@@ -384,6 +384,7 @@ class Strip:
         
         return new
     
+    
     def is_prime(self):
         ''' takes: self
             returns: bool for if the strip is prime
@@ -393,6 +394,7 @@ class Strip:
         '''
         
         return self.thickness.count(0) == 0
+    
     
     def plug_count(self):
         ''' takes: self
@@ -556,6 +558,12 @@ if __name__ == '__main__':
             strip_flip.flip() != strip_add,
             strip_blank == strip_reset)):
         fails.append('equivalence')
+        
+    print('shortcuts...')
+    if any((strip_add.plug_count() != 3,
+            strip_add.is_prime() == False,
+            strip_gap.is_prime())):
+        fails.append('shortcuts')
     
     print('done.')
     

@@ -418,46 +418,85 @@ We obtain the following table with the first few nonzero values of $S(n)$, along
  Some thoughts about the constant plugs. Not sure how deep or interesting they are or might be.
  \end{anote}
  
- Let  
+Write
  \begin{equation*}
      R_k = \plug{$11\ldots1$}\ \   (k \  \plug{1}\text{'s})
  \end{equation*}
+ for the plug of length $n$ with $n$ prongs.
  
- The $S(n)$ solutions to the puzzle $\puzzle{R} = \puzzle{E}(\text{all }  R_k)$ correspond to the \emph{compositions} of $n$: ways to write $n$ as an ordered sum of nonnegative integers. Thus $S(n) = 2^{n-1}$.
- 
- The only prime solutions are the plugs themselves, so $S'(n) = 1$ for all $n$. Convolution confirms that.
- 
- The puzzles
+ Let 
  \begin{equation*}
-     \puzzle{R}(s,t) = \puzzle{E}(\{R_s, R_t\})
+     d = (d_1,  d_2, d_3, \ldots )
  \end{equation*}
- are a little more interesting. We can assume $s$ and $t$ are relatively prime. Then $S(n)$ is the number of nonnegative integral solutions to the diophantine equation
+ be an infinite bit string (a sequence of $\plug{0}$'s and  $\plug{1}$'s)  and
+ $\puzzle{R}(d)$   the puzzle using just the plugs $R_k$ specified by $d$:
+ \begin{equation*}
+     \puzzle{R}(d) =
+     \puzzle{E}(\{R_k \ | \ d_k = 1 \}).
+ \end{equation*}
+ 
+ Then $d$ is the sequence $S'( \puzzle{R}(d), n)$ that counts prime solutions of length $n$; its convolution counts all the solutions. 
+ 
+ Every solution of length $n$ is a concatenation of plugs $R_k$ that corresponds to  a
+ \emph{composition} of $n$: a way to write $n$ as an ordered sum of nonnegative integers $k$ for which $d_k = 1$.
+ 
+ Several interesting combinatorial sequences come up in this context.
+ 
+ \begin{itemize}
+     \item When all plugs $R_k$ are allowed, $d = S' =  (1,1, \ldots) $ and $S(n) = 2^{n-1}$
+     \item When   $d = S' =  (1,1,0, 0, \ldots) $ the total count $S(n) = F_n$, the $n$th Fibonacci number.
+     \item When   $d = S' =  (1,1, 1, 0, 0, \ldots) $ the total count $S(n)$  is the $n$th Tribonacci number.
+     \item If $d_k = 1$ for just two values $s$ and $t$ then $S(n)$ is the number of nonnegative integral solutions to the diophantine equation
  \begin{equation*}
      sx + ty = n .
  \end{equation*}
- when the order of the $s+t$ summands is taken into account.
- For example, when $s=3, t=5$ it's the sequence
-  \begin{equation*}
-    0, 0, 1, 0, 1, 1, 0, 2, 1, 1, 3, 1, 3, 4, 2, 6, 5, 5, 10, 7, 11, 15, \ldots
- \end{equation*}
- with the a two term recursion
-  \begin{equation*}
-     S(n) = S(n-3) + S(n-5).
- \end{equation*}
+  when the order of the $x+y$ summands is taken into account.
+ \end{itemize}
+
+We have been calculating $S$ from $S'$ using convolution, but there is a recursion for $S$ directly:
+\begin{equation}\label{eq:Sofn}
+    S(n,d) = \sum\{S_{n-k} \ | \ k < n \text{ and } d_k = 1\}
+\end{equation}
+
+\begin{anote}
+ Here are some thoughts about the aysmptotics of the sequences $S$ for these puzzles. I think they are provable (or already proved in the literature) if they are correct. But perhaps there's new stuff.
+\end{anote}
+
+If $d$ is the sequence of all $1$'s then $S(n,d) = 2^{n-1}$ grows exponentially with growth factor $2$. The Fibonacci sequence grows exponentially with asymptotic growth factor $\varphi = (1+ \sqrt{5})/2 \approx 1.618$. If $d = (1, 0, 0,  \ldots)$ then $S(n)$ is identically $1$ and "grows" exponentially with growth factor $1$.
+
+\begin{theorem}
+For each bit sequence $d$ the  sequence $S(n,d)$ grows exponentially with an asymptotic growth factor $g(d)$ and  $1 \le g(d) \le 2$.
+\end{theorem}
+\begin{proof}
+If $d$  uses only finitely many plugs then  recursion~\ref{eq:Sofn} implies that $S(n,d)$ does have a finite exponential growth rate $g(d) \ge 1$. For any $d$, $S(n,d)$ grows no faster than $S(n, \text{ all 1's})$ so has asymptotic growth rate at most $2$.
+\end{proof}
+
+\begin{question}
+$g(\plug{11})= \varphi$ since that $d$ generates the Fibonacci numbers. Calculation shows $g(\plug{1011})$ and $g(\plug{101011})$ have the same rate (to many decimal places), though they (necessarily) generate different sequences. Why do the growth rates match? More generally, when do different plug puzzles have solutions that grow at the same rate?
+\end{question}
+
+\begin{question}
+The bitstring sequences $d$ correspond to subsets of the natural numbers. They form a partially ordered set under inclusion, and $g$ is clearly a nondecreasing function with respect to that partial ordering.  Does this help figuring out when $g$ has repeated values? How can we compare values of $g$ on incomparable subsets?
+\end{question}
  
- In general, the number of solutions to $\puzzle{R}(s,t)$ grows quadratically. The number of solutions $S(n)$ for a subset of $m$ of the plugs $R_k$ will grow at rate $n^m$.  
+ If we think of the bit sequences $d$ as binary decimal expansions of real numbers then they parameterize the unit interval (almost). That makes the growth factor function $g$ a function from that interval to $[1,2]$. What does it look like?
+ 
+ Finite bit strings $d$ index the nodes of an infinite binary tree: take the leff(right) path depending on whether the next entry in $d$ is $0(1)$. Imagine completing $d$ with all $0$'s and put the value of $g(d)$ at the node. Then $g(d)$ will be unchanged when you append a $\plug{0}$ to $d$ and move left in the tree. It may increase when you append a $\plug{1}$ Does this structure  help us understand $g$?
+
+
 \section{Asymptotics}
 
-\begin{conjecture}
-Let $\mathcal{P}$ be a set of plugs.
-The number of solutions $S(n)$ to $\puzzle{E}(\mathcal{P})$ grows as $n^{|\mathcal{P}|}$  if $\mathcal{P}$ is finite, exponentially otherwise.
-\end{conjecture}
+Some of the structure in the preceding section generalizes. A puzzle with no restrictions on the number of allowed plugs of each allowable plug type is determined by the set  of allowable plug types. That is just a subset of the countable set $P$ of all possible plug types: the partitions of arbitrary integers. So we can think of growth rate as a function $g$ on the power set $\mathcal{P}(P)$. It's weakly increasing on the partial order determined by set inclusion. Its maximum is the growth rate for the Bell numbers, which come from the anythng goes puzzle.
 
+\begin{anote}
+Perhaps it will be useful to think about aysmptotics in this general context. We might be able to say something about classes of puzzles when exact answers or estimates for particular puzzles are beyond us.
+\end{anote}
 \section{Infinite strips}
 
 \begin{anote}
 Placeholder for work on infinite prime strips.
 \end{anote}
+
 
 With the plugs $A = $\plug{10101}$ and $B = \plug{1011101} you can construct many doubly infinite filled strips since each interlocks with itself and with the other at either end. 
 
@@ -478,9 +517,10 @@ you can build such an aperiodic strip without ever using three of a kind in a ro
 \begin{conjecture}
 This sequence is clearly aperiodic in $A$ and $B$. Check that it is also aperiodic in bits.
 \end{conjecture}
-\section{Convolution}\ref{sec:convolution}
+\section{Convolution}\label{sec:convolution}
 
-The calculation in Theorem\ref{thm:primerecursion} is (potentially) interesting for its own sake, not just for our applications to plug problems. The functions t2p() and p2t() that convert between total counts and prime counts each invert the other, so each is bijective when applied to arbitrary sequences of integers (or sequences of real numbers, or sequences of elements from any ring).
+
+The calculation in Theorem~\ref{thm:primerecursion} is (potentially) interesting for its own sake, not just for our applications to plug problems. The functions t2p() and p2t() that convert between total counts and prime counts each invert the other, so each is bijective when applied to arbitrary sequences of integers (or sequences of real numbers, or sequences of elements from any ring).
 
 p2t always increases entries. It's a kind of integration, counting products given prime factors. Its inverse is a kind of differentiation. 
 

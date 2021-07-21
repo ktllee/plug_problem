@@ -34,9 +34,8 @@ def overview(plug_list, max_n = 10, style = 's', progress = False):
                     'z' or 'zero_str' for zero_str,
                     's' or 'str_num' for str_num (default),
                     'n' or 'number' for number,
-                    'c' or 'classic' for classic (style only),
-                    'p' or 'plug' for full Plugs,
-                    'f' or 'full' for full Strips (result_style only)
+                    'c' or 'classic' for classic,
+                    'p' or 'plug' for full Plugs
         returns: a dataframe of number of prime and composite solutions
     '''
     
@@ -61,7 +60,7 @@ def overview(plug_list, max_n = 10, style = 's', progress = False):
         # time check and update printing if progress requested
         if progress:
             current = time.time()
-            elapsed = round(start - current)
+            elapsed = round(current - start)
             print(f'n = {n}, {elapsed}s elapsed.')
         
     # setting up dataframe to be returned

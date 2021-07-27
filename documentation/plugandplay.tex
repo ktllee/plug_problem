@@ -414,10 +414,7 @@ We obtain the following table with the first few nonzero values of $S(n)$, along
 
 \section{\plug{$11\ldots1$}}
 
- \begin{anote}
- Some thoughts about the constant plugs. Not sure how deep or interesting they are or might be.
- \end{anote}
- 
+
 Write
  \begin{equation*}
      R_k = \plug{$11\ldots1$}\ \   (k \  \plug{1}\text{'s})
@@ -428,60 +425,242 @@ Write
  \begin{equation*}
      d = (d_1,  d_2, d_3, \ldots )
  \end{equation*}
- be an infinite bit string (a sequence of $\plug{0}$'s and  $\plug{1}$'s)  and
- $\puzzle{R}(d)$   the puzzle using just the plugs $R_k$ specified by $d$:
+ be an infinite bit string (a sequence of $\plug{0}$'s and
+ $\plug{1}$'s)  and  $\puzzle{R}(d)$   the puzzle using just the plugs
+ $R_k$ specified by $d$: 
  \begin{equation*}
      \puzzle{R}(d) =
      \puzzle{E}(\{R_k \ | \ d_k = 1 \}).
  \end{equation*}
  
- Then $d$ is the sequence $S'( \puzzle{R}(d), n)$ that counts prime solutions of length $n$; its convolution counts all the solutions. 
+ Then $d$ is the sequence $S'( \puzzle{R}(d), n)$ that counts prime
+ solutions of length $n$; its convolution counts all the solutions.  
  
- Every solution of length $n$ is a concatenation of plugs $R_k$ that corresponds to  a
- \emph{composition} of $n$: a way to write $n$ as an ordered sum of nonnegative integers $k$ for which $d_k = 1$.
+ Every solution of length $n$ is a concatenation of plugs $R_k$ that
+ corresponds to  a  \emph{composition} of $n$: a way to write $n$ as
+ an ordered sum of nonnegative integers $k$ for which $d_k = 1$. 
  
  Several interesting combinatorial sequences come up in this context.
  
  \begin{itemize}
-     \item When all plugs $R_k$ are allowed, $d = S' =  (1,1, \ldots) $ and $S(n) = 2^{n-1}$
-     \item When   $d = S' =  (1,1,0, 0, \ldots) $ the total count $S(n) = F_n$, the $n$th Fibonacci number.
-     \item When   $d = S' =  (1,1, 1, 0, 0, \ldots) $ the total count $S(n)$  is the $n$th Tribonacci number.
-     \item If $d_k = 1$ for just two values $s$ and $t$ then $S(n)$ is the number of nonnegative integral solutions to the diophantine equation
+     \item When all plugs $R_k$ are allowed, $d = S' =  (1,1, \ldots)$
+       and $S(n) = 2^{n-1}$ 
+     \item When only the single prong plug is allowed,
+       $d = S' =  (1,0,0, \ldots)$ and $S(n) = 1$ for all $n$.
+     \item When   $d = S' =  (1,1,0, 0, \ldots) $ the total count
+       $S(n) = F_n$, the $n$th Fibonacci number. 
+     \item When   $d = S' =  (1,1, 1, 0, 0, \ldots) $ the total count
+       $S(n)$  is the $n$th Tribonacci number. 
+     \item If $d_k = 1$ for just two values $s$ and $t$ then $S(n)$ is
+       the number of nonnegative integral solutions to the diophantine
+       equation 
  \begin{equation*}
      sx + ty = n .
  \end{equation*}
-  when the order of the $x+y$ summands is taken into account.
+  when the order of the $s + t$ summands is taken into account. 
  \end{itemize}
 
-We have been calculating $S$ from $S'$ using convolution, but there is a recursion for $S$ directly:
+We have been calculating $S$ from $S'$ using convolution, but there is
+a recursion for $S$ directly: 
 \begin{equation}\label{eq:Sofn}
     S(n,d) = \sum\{S_{n-k} \ | \ k < n \text{ and } d_k = 1\}
 \end{equation}
 
-\begin{anote}
- Here are some thoughts about the aysmptotics of the sequences $S$ for these puzzles. I think they are provable (or already proved in the literature) if they are correct. But perhaps there's new stuff.
-\end{anote}
+We want to study how $S(n,d)$ grows (for fixed $d$).
+If $d$ is the sequence of all $1$'s then $S(n,d) = 2^{n-1}$ grows
+exponentially with growth factor $2$. The Fibonacci sequence grows
+exponentially with asymptotic growth factor $\varphi = (1+ \sqrt{5})/2
+\approx 1.618$. If $d = (1, 0, 0,  \ldots)$ then $S(n)$ is identically
+$1$ and "grows" exponentially with growth factor $1$. 
 
-If $d$ is the sequence of all $1$'s then $S(n,d) = 2^{n-1}$ grows exponentially with growth factor $2$. The Fibonacci sequence grows exponentially with asymptotic growth factor $\varphi = (1+ \sqrt{5})/2 \approx 1.618$. If $d = (1, 0, 0,  \ldots)$ then $S(n)$ is identically $1$ and "grows" exponentially with growth factor $1$.
 
-\begin{theorem}
-For each bit sequence $d$ the  sequence $S(n,d)$ grows exponentially with an asymptotic growth factor $g(d)$ and  $1 \le g(d) \le 2$.
+If $d$  uses only finitely many plugs define the order $o(d)$ of $d$
+as the largest $k$ for which $d_k = 1$. Then information about $g(d)$
+is encoded in the the polynomial whose coefficients are the negatives
+of the bits in $d$ together with a leading $1$.
+\begin{equation*}\label{eq:Sofn}
+  p_d(x) = x^{o(d)} - \sum_{d_k = 1} x^{o(d)-k}
+\end{equation*}
+
+For example
+  \begin{equation*}
+    p_{11}(x) = x^2 - x - 1 
+\end{equation*}
+and
+  \begin{equation*}
+    p_{1011}(x) = x^4 - x^3 - x - 1 .
+\end{equation*}
+
+It's known (cite reference) that $S(n,d)$ grows with an asymptotic
+growth factor $g(d)$ that is the largest real root of $p_d(x)$.
+
+A monic polynomial is a \emph{recursion polynomial} if the coefficient
+of each power less than the highest is $0$ or $-1$ and the constant
+term is $-1$. Recursion polynomials correspond bijectively to
+recursions defined by Equation~\ref{eq:Sofn}.
+
+\begin{theorem}\label{thm:shift}
+For each bit sequence $d$ the  sequence $S(n,d)$ grows exponentially
+with an asymptotic growth factor $g(d)$ that satisfies  $1 \le g(d) \le 2$. 
 \end{theorem}
 \begin{proof}
-If $d$  uses only finitely many plugs then  recursion~\ref{eq:Sofn} implies that $S(n,d)$ does have a finite exponential growth rate $g(d) \ge 1$. For any $d$, $S(n,d)$ grows no faster than $S(n, \text{ all 1's})$ so has asymptotic growth rate at most $2$.
+ If $d$  uses only finitely many plugs then  recursion~\ref{eq:Sofn}
+implies that $S(n,d)$ does have a finite exponential growth rate
+$g(d)$, which must be at least $1$ since the single prong puzzle
+solutions grow at that rate. For any $d$, $S(n,d)$ grows no faster
+than $S(n, \text{ all 1's})$ so has asymptotic growth rate at most $2$.
+
+There's a nice alternative proof for finite bit sequences that uses
+the recursion polynomial $p_d(x)$. Its value at $1$ can't be positive ,
+since the first term and the last term cancel and the other terms are
+negative. (It's strictly less than $0$ except for the recursion
+polynomial $p_d(x) = x + 1$ for the single prong plug puzzle.). The
+value $p_d(2) < 2$ since it's the difference between $2^{o(d)}$ and
+an integer less than that (since we have its binary
+representation). The polynomial is clearly increasing for $x > 2$ so
+the largest real root is between $1$ and $2$.
 \end{proof}
 
-\begin{question}
-$g(\plug{11})= \varphi$ since that $d$ generates the Fibonacci numbers. Calculation shows $g(\plug{1011})$ and $g(\plug{101011})$ have the same rate (to many decimal places), though they (necessarily) generate different sequences. Why do the growth rates match? More generally, when do different plug puzzles have solutions that grow at the same rate?
-\end{question}
+Different puzzle problems can have the same growth rate.
+$g(\plug{11})= \varphi$ since that $d$ generates the Fibonacci
+  numbers. Calculation shows $g(\plug{1011})$ and $g(\plug{101011})$
+  have the same rate (to many decimal places), though they
+  (necessarily) generate different sequences.
+We can understand this kind of coincidence several ways.
+
+If you expand the Fibonacci sequence recursion one level deeper you
+see that 
+\begin{equation*}
+F(n)=F(n-1)+F(n-2) = F(n-1)+F(n-3)+F(n-4)
+\end{equation*}
+so the sequences $d=11$ and $d=1011$ define the same recursion
+with different initial
+conditions. Asymptotically they grow at the same rate.
+
+The recursion polynomials are related:
+\begin{align*}
+  p_{1011}(x) &= x^4 - x^3 - x - 1 \\
+  &= (x^2 + 1)(x^2 - x - 1) \\
+  &= (x^2 + 1)p_{11}(x).
+\end{align*}
+Therefore $p_{1011}$ and $p_{11}$ have the same roots, so the same largest
+  real root.
+
+\begin{theorem}\label{thm:shift}
+If $d$ and $h$ are finite bit strings and
+    \begin{equation*}
+p_h(x) = v(x)p_d(x)
+    \end{equation*}
+    for some polynomial $v(x)$ that is positive when $x > 1$
+    then     $g(d) = g(h)$.
+\end{theorem}
+\begin{proof}
+ The recursion polynomials have the same largest
+    real root.
+\end{proof}
+
+\begin{corollary}
+  For bit string $d = z1$ 
+  \begin{equation*}
+  g(z1) = g(z0z1).
+  \end{equation*}
+\end{corollary}
+  \begin{proof}
+The concatenation of the strings $z0$ and $z1$ corresponds to adding a
+shift  of the recursion polynomial $p_{z1}(x)$ by a factor of
+$x^{o(d)}$ to itself so that the
+leading and constant terms align and hence to
+  the factorization
+  \begin{equation*}
+p_{z0z1}(x) = (x^{o(d)} + 1)p_{z1}(x) ,
+  \end{equation*}
+  \end{proof}
+
+  These shifts are not the only only way to construct bit strings with
+  the same growth rate. You can't even require that the polynomial
+  $v(x)$ have coefficients $0$ and $1$. For example
+\begin{align*}
+  p_{10001}(x) &= x^5 - x^4 - 1 \\
+  &= (x^2 -x + 1)(x^3 - x - 1) \\
+  &= (x^2 -x + 1)p_{011}(x).
+\end{align*}
 
 \begin{question}
-The bitstring sequences $d$ correspond to subsets of the natural numbers. They form a partially ordered set under inclusion, and $g$ is clearly a nondecreasing function with respect to that partial ordering.  Does this help figuring out when $g$ has repeated values? How can we compare values of $g$ on incomparable subsets?
+Theorem~\ref{thm:shift} shows that every recursion polynomial is a
+factor of other recursion polynomials of larger degree. Which
+recursion polynomials are ``prime'', so the roots of the tree of their
+multiples? Can one recursion polynomial ever divide another? (Probably
+not.)
+\end{question}
+
+We suspect that the converse of Theorem~\ref{thm:shift}
+is true.
+  \begin{conjecture} If $d$ and $h$ are finite bit strings with $o(d)< o(h)$
+    then $g(d) = g(h)$ only if 
+    \begin{equation*}
+p_h(x) = v(x)p_d(x)
+    \end{equation*}
+    for some polynomial $v(x)$ that is positive when (insert
+    appropriate positivity hypothesis here).
+  \end{conjecture}
+
+  \begin{anote}
+Part of that conjecture is pretty strong. It says two recursion
+polynomials can't share a largest real root unless one is a multiple
+of the other.
+\end{anote}
+
+  \begin{question}
+Infinite bit strings $d$ define puzzles for which there is no
+recursion of fixed length. But they do exhibit an asympotic growth
+rate $g(d) \le 2$. Might $g(d)$ be the largest real root of some
+constructable power series?
+  \end{question}
+  
+  \begin{anote}
+Ethan: I think the following questions are less interesting than when
+I first wrote them down.
+\end{anote}
+\begin{question}
+The bitstring sequences $d$ correspond to subsets of the natural
+numbers. They form a partially ordered set under inclusion, and $g$ is
+clearly a nondecreasing function with respect to that partial
+ordering.  Can we compare values of $g$ on incomparable subsets? 
 \end{question}
  
- If we think of the bit sequences $d$ as binary decimal expansions of real numbers then they parameterize the unit interval (almost). That makes the growth factor function $g$ a function from that interval to $[1,2]$. What does it look like?
+ If we think of the bit sequences $d$ as binary decimal expansions of
+ real numbers then they parameterize the unit interval (almost). That
+ makes the growth factor function $g$ a function from that interval to
+ $[1,2]$. What does it look like? 
  
- Finite bit strings $d$ index the nodes of an infinite binary tree: take the leff(right) path depending on whether the next entry in $d$ is $0(1)$. Imagine completing $d$ with all $0$'s and put the value of $g(d)$ at the node. Then $g(d)$ will be unchanged when you append a $\plug{0}$ to $d$ and move left in the tree. It may increase when you append a $\plug{1}$ Does this structure  help us understand $g$?
+ Finite bit strings $d$ index the nodes of an infinite binary tree:
+ take the leff(right) path depending on whether the next entry in $d$
+ is $0(1)$. Imagine completing $d$ with all $0$'s and put the value of
+ $g(d)$ at the node. Then $g(d)$ will be unchanged when you append a
+ $\plug{0}$ to $d$ and move left in the tree. It may increase when you
+ append a $\plug{1}$. Does this structure  help us understand $g$? 
+
+
+\section{Non-crossing solutions}
+
+\begin{theorem}
+Let $C(n)$ and $C_{classic}(n)$ represent the number of non-crossing solutions for a strip of length $n$ involving any type of plug and only classic plugs\footnote{Note: I don't recall if classic (or for that matter, non-crossing) has been defined earlier; will match formatting, definitions etc. when I have time online. -Katie} respectively.  Then $C(n) = C_{classic}(2n)$ where $n$ is any positive integer.
+\end{theorem}
+
+\begin{proof}
+There is a bijective function between non-crossing solutions involving only classic plugs and involving any plug.  The algorithm to convert between solutions of each type and its inverse follow.
+
+To convert a solution involving any type of plug to a solution of double the length involving only classic plugs, firstly, singletons ('1' plugs) are converted to $T_2$ plugs.  Then, all other plugs are converted into a minimum of two classic plugs: one plug that is double the total length of the initial plug, and other plugs that are each double the length of the number of \textit{gaps} between inner prongs.  Note that a classic plug (one without inner prongs) will only result in two plugs—one of double the total length and one of double the number of inner gaps, that is $2(n-1)$, where $n$ is the length of the strip.  This can be visualized below.
+\textbf{Remember to add: Images of examples for a few individual plugs and a solution}.
+
+For the inverse algorithm, which converts a solution composed of only classic plugs to one that is half the length and involves any kind of plug, first (1), any "loose" $T_2$ plugs, those that aren't within any other plug, should be converted to singletons.  Then (2), any plugs "containing" others should be paired with each plug \textit{directly} below it.  By halving the lengths of each of the inner plugs, the lengths of gaps between inner prongs can be found and added to the overall plug of half the length of the originally overarching classic plug.  By repeating (1) and (2) until all plugs have been converted, non-crossing classic solutions can be converted to non-crossing free solutions, as below.
+\textbf{Remember to add: Images of examples for a few individual plugs and a solution for inverse}.
+
+It should be noted that these algorithms can be applied to any solution of the originating type.  This is clear for the doubling algorithm, and also must be true for the inverse, because all spaces within larger classic plugs must be filled by an appropriate number of other classic plugs—since they are non-crossing, overlapping plugs are not a problem.
+
+Then, because each function can be applied to any non-crossing solution of each type, and (as below) the algorithm and its inverse, or vice-versa, applied in succession to a solution results in the original solution.
+\textbf{Remember to add: Examples going in each direction}.
+\end{proof}
 
 
 \section{Asymptotics}
@@ -593,7 +772,7 @@ We rewrite the equation in Theorem~\ref{thm:primerecursion} as
 \begin{equation*}
     S(x)-1=S'(x)S(x)
 \end{equation*}
-and solve for $S(x)$. See
+and solve for $S(x)$. See \cite{walk comb}, p. 177. 
 \end{proof}
 
 \begin{thebibliography}{100}
@@ -601,6 +780,8 @@ and solve for $S(x)$. See
 \bibitem{originalproblem}
 Number of ways to arrange pairs of integers with distance constraint
 \href{https://math.stackexchange.com/questions/4124452/number-of-ways-to-arrange-pairs-of-integers-with-distance-constraint}{math.stackexchange.com/questions/4124452/number-of-ways-to-arrange-pairs-of-integers-with-distance-constraint}
+
+\bibitem{walk comb} Mikl\'os B\'ona, {\it A Walk Through Combinatorics: An Introduction to Enumeration and Graph Theory, 4th edition}, World Scientific, 2017. 
 
 \end{thebibliography}
 %\newpage

@@ -617,6 +617,40 @@ rate $g(d) \le 2$. Might $g(d)$ be the largest real root of some
 constructable power series?
   \end{question}
   
+  \begin{verbatim}
+I started looking at everything but R_1. If
+you use convolve.py with a sequence of
+prime counts
+
+0 1 1 1 1 for a while then 0 0 forever
+
+the resulting sequence of total counts is
+the Fibonacci sequence for an increasing
+length that depends on the number of 1's
+
+Below are the growth rates. This suggests
+that whenever you omit the single prong
+plug the growth rate is bounded by the
+golden ratio. The growth rate will increase
+to that ratio the more ones you add after
+the initial 0.
+
+Why? Maybe I'll try two initial 0s next.
+
+[2] 1.0
+[2, 3] 1.324717957244746
+[2, 3, 4] 1.465571231876768
+[2, 3, 4, 5] 1.534157744914267
+[2, 3, 4, 5, 6] 1.5701473121960543
+[2, 3, 4, 5, 6, 7] 1.590005373901364
+[2, 3, 4, 5, 6, 7, 8] 1.6013473337876367
+[2, 3, 4, 5, 6, 7, 8, 9] 1.607982727928201
+[2, 3, 4, 5, 6, 7, 8, 9, 10] 1.6119303965641198
+[2, 3, 4, 5, 6, 7, 8, 9, 10, 11] 1.6143068232571485
+[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] 1.6157492027552105
+[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] 1.6166296843945727
+[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] 1.6171692963550925
+  \end{verbatim}
   \begin{anote}
 Ethan: I think the following questions are less interesting than when
 I first wrote them down.

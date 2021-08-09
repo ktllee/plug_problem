@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-last modified: 06/22/21
+last modified: 08/09/21
 
 @author: katie
 
@@ -24,11 +24,14 @@ description:
         return flipped version of strip (refuses if not full)
         reset attributes based on list of plugs
         deep copy
+        shortcuts
+        draw (dependent on Pillow)
         
     note: does not currently support plugs with hanging ends
 """
 
 from plug_class import Plug
+from PIL import Image
 
 class Strip:
     """ class for strip with defined total length
@@ -405,6 +408,178 @@ class Strip:
         
         return len(self.plug_list)
     
+    
+    # helper function for color
+    @staticmethod
+    def color_check(rep):
+        ''' takes: rep <- some representation of a color
+            returns: the color in RGB notation
+            
+            converts hex or single character strings to RGB tuples.
+        '''
+        
+        # case for raw tuple
+        if isinstance(rep, tuple):
+            if len(rep) != 3 or any(x > 255 for x in rep):
+                raise ValueError('tuples must be valid RGB triples')
+            else:
+                color = rep
+                
+        # input as hex or string
+        elif isinstance(rep, str):
+            if rep[0] == '#':
+                hexcol = tuple(int(rep[i:i + 2], 16) for i in (1, 3, 5))
+                if any(x > 255 for x in hexcol):
+                    raise ValueError('hex must be valid')
+                else:
+                    color = hexcol
+            
+            # strings krgb
+            elif rep == 'k':
+                color = (0,0,0)
+            elif rep == 'r':
+                color = (255,0,0)
+            elif rep == 'g':
+                color = (0,255,0)
+            elif rep == 'b':
+                color = (0,0,255)
+                
+            else:
+                raise ValueError('must be hex or valid string shortcut')
+                
+        else:
+            raise TypeError('must be str or tuple')
+        
+        return color
+    
+    
+    def draw(self, color = 'k'):
+        ''' takes: self, optional color argument
+            returns: image
+            
+            draws current strip using pixels.
+            optional color argument can be a string with a single color or
+            a list corresponding to colors for each plug.
+            
+            note that color(s) can be given as:
+                hex using str beginning with #;
+                single character strings:
+                    'k' = black,
+                    'r' = red,
+                    'g' = green,
+                    'b' = blue;
+                RGB tuple
+                    
+            note: background is white
+        '''
+        
+        # setting image size and attributes
+        border = 2
+        height = 16 + 3 * (max(self.thickness + [0]) - 1) + border * 2
+        width = 5 * self.length + border * 2
+        if Plug(1) in self.plug_list:
+            height += 3
+        
+        # checking/setting color
+        # single color for all
+        if isinstance(color, str) or isinstance(color, tuple):
+            colors = self.color_check(color)
+            multiple = False
+            
+        # multiple color assignment
+        elif isinstance(color, list):
+            if len(color) != len(self.plug_list):
+                raise ValueError('number of colors must correspond to plugs')
+            else:
+                colors = [self.color_check(x) for x in color]
+                colors.append((0,0,0))
+                multiple = True
+        else:
+            raise TypeError('must be list, str, or tuple')
+            
+        # converting verbose notation
+        converter = {}
+        n = 0
+        for x in self.plug_verbose:
+            if isinstance(x, tuple):
+                if x[1] not in converter:
+                    converter[x[1]] = n
+                    n += 1
+                
+        # setting plug lists and grid
+        remaining = list(range(len(self.plug_list)))
+        spaces = [converter[x[1]] if isinstance(x, tuple) else None \
+                  for x in self.plug_verbose]
+        grid = [[None] * width for x in range(height)]
+        
+        # setting spaces (dots in each spot a prong can go)
+        grid[-3 - border] = [-1 if ((x + border)%5 == 1 and \
+                                    x < (width - border)) \
+                             else None for x in range(width)]
+        
+        # lowest is 8px in height with +3 for each above
+        bottom = height - border - 5
+        column = lambda x: (x + 1) * 5 + border - 3
+        
+        # setting other plugs until there are none left
+        while spaces.count(None) != len(spaces):
+            
+            # find the plugs with the fewest prongs to still be drawn within
+            counts = {}
+            for plug in remaining:
+                n, start = 0, False
+                for i in range(len(spaces)):
+                    if spaces[i] not in (None, plug) and start:
+                        n += 1
+                    elif spaces[i] == plug and not start:
+                        start = True
+                    if spaces[i] == plug and plug not in spaces[i+1:]:
+                        start = False
+                counts[plug] = n
+            to_add = [x for x in counts \
+                      if counts[x] == counts[min(counts, key=counts.get)]]
+            
+            # iterate to look for spaces to fill
+            for plug in to_add:
+                first = spaces.index(plug)
+                last = first + self.plug_list[plug].length - 1
+                
+                # find height for top
+                top = bottom - 8
+                for i in range(len(spaces)):
+                    if i in range(first, last):
+                        for j in reversed(range(height)):
+                            if grid[j][column(i)] not in (None, -1):
+                                top = min(top, j - 3)
+                
+                # draw plug prongs
+                for i in range(len(spaces)):
+                    if spaces[i] == plug:
+                        for row in range(top, bottom + 1):
+                            grid[row][column(i)] = plug
+                        spaces[i] = None
+                
+                # draw overbar
+                for spot in range(column(first), column(last)):
+                    grid[top][spot] = plug
+                remaining.remove(plug)
+            
+        # flatten and color
+        flattened = [x for sub in grid for x in sub]
+        if multiple:
+            final = [colors[x] if x != None else (255,255,255) \
+                     for x in flattened]
+        else:
+            final = [colors if x != None else (255,255,255) \
+                     for x in flattened]
+        
+        # changing to larger PIL Image to show
+        drawing = Image.new('RGB', (width, height))
+        drawing.putdata(final)
+        result = drawing.resize((width * 5, height * 5), Image.NEAREST)
+        
+        return result
+    
 #####
 
 # testing
@@ -577,11 +752,6 @@ if __name__ == '__main__':
     else:
         for x in fails:
             print(x)
-    
-
-
-
-
 
 
 

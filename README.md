@@ -34,9 +34,11 @@ This puzzle was inspired by the question ["Number of ways to arrange pairs of in
 
 ### Active Scripts
 
-`flex_solver.py` is code to recursively solve for valid arrangements given types of plugs and a total length.  **In Progress.  Functional**
+`flex_solver.py` is code to recursively solve for valid arrangements given types of plugs and a total length.  **Functional**
 
-`overview_solver.py` is code to quickly show a table of the number of total and prime solutions given a dictionary of plugs. **In Progress.  Functional**
+`count_solver.py` is code to recursively solve for valid arrangements given types of plugs and a total number of plugs.  **In Progress.**
+
+`overview_solver.py` is code to quickly show a table of the number of total and prime solutions given a dictionary of plugs. **Functional**
 
 `plug_class.py` contains the Plug class.  **Functional.**
 

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-last modified: 07/06/21
+last modified: 08/16/21
 
 @author: katie
 
 description:
     codes to solve for all valid arrangements of Plugs in a Strip of given
-    total length (and given types of plugs).
+    total length (and given types of plugs) and optional number of plugs.
     
     flex(length, plugs, init_style) returns a list of all valid arrangements
     for the plugs given in either dictionary or list form.
@@ -17,7 +17,8 @@ description:
 from plug_class import Plug
 from strip_class import Strip
 
-def flex(length, plug_list, strip = None, style = 's', result_style = 's'):
+def flex(length, plug_list,
+         strip = None, style = 's', result_style = 's', number = None):
     ''' takes:
             mandatory: 
                 length - an int for total length to begin with.
@@ -32,6 +33,7 @@ def flex(length, plug_list, strip = None, style = 's', result_style = 's'):
                     'c' or 'classic' for classic (style only),
                     'p' or 'plug' for full Plugs,
                     'f' or 'full' for full Strips (result_style only)
+                number - an int for max number of plugs to use.
         returns: a set of solutions
         
         recursively finds solutions for the plug problem.
@@ -76,8 +78,24 @@ def flex(length, plug_list, strip = None, style = 's', result_style = 's'):
         if strip.length != length:
             raise ValueError('strip and length must match')
     
+    # check for number
+    if number != None:
+        if not isinstance(number, int):
+            raise TypeError('number must be an int')
+        if number < 1:
+            raise ValueError('number must be greater than 0')
+            
+        # return if strip is over number
+        if len(strip.plug_list) > number:
+            return []
+    
     # base case - full strip, time to return
     if strip.filled.count('0') == 0:
+        
+        # check for number
+        if number != None:
+            if len(strip.plug_list) != number:
+                return []
         
         # apply different result options
         if result_style == 's':
@@ -120,7 +138,8 @@ def flex(length, plug_list, strip = None, style = 's', result_style = 's'):
                 new_plugs[option] -= 1
             
             # call flex
-            recur = flex(length, new_plugs, new_strip, style, result_style)
+            recur = flex(length, new_plugs, new_strip,
+                         style, result_style, number)
             solutions.extend(recur)
             
     # remove doubles
@@ -144,6 +163,7 @@ if __name__ == '__main__':
     test_a2 = ['1']
     test_b = {'3': -1, '5': -1}
     test_c = {'1': 1, '5': -1}
+    test_d = ['1', '3']
     
     # solutions
     solve_a = [['1', '1', '1']]
@@ -156,6 +176,10 @@ if __name__ == '__main__':
                 ['5', '5', '5', '1']]
     solve_c7z = [['101', '1', '101', '101'],
                  ['101', '101', '101', '1']] 
+    solve_d3 = [['1', '3', '3'],
+                ['3', '1', '3'],
+                ['3', '3', '1']]
+    solve_d5 = [['1', '1', '1', '1', '1']]
     
     # answers from function
     ans_a1 = flex(3, test_a1)
@@ -165,6 +189,8 @@ if __name__ == '__main__':
     ans_c2 = flex(2, test_c)
     ans_c7 = flex(7, test_c)
     ans_c7z = flex(7, test_c, result_style = 'z')
+    ans_d3 = flex(5, test_d, number=3)
+    ans_d5 = flex(5, test_d, number=5)
     
     tester = [('small dict', ans_a1, solve_a),
               ('small list', ans_a2, solve_a),
@@ -172,7 +198,9 @@ if __name__ == '__main__':
               ('some, inf', ans_b6, solve_b6),
               ('empty, lim', ans_c2, solve_c2),
               ('some, lim', ans_c7, solve_c7),
-              ('some, result z', ans_c7z, solve_c7z)]
+              ('some, result z', ans_c7z, solve_c7z),
+              ('number max 3', ans_d3, solve_d3),
+              ('number max 5', ans_d5, solve_d5)]
     
     # init list of failures
     fails = []

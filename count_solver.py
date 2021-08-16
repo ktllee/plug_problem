@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-last modified: 08/09/21
+last modified: 08/16/21
 
 @author: katie
 
@@ -87,7 +87,8 @@ def cts(number, plug_list, style = 's', result_style = 's'):
     # iterate over all possible lengths to find solutions using flex
     solutions = []
     for length in range(bounds[0], bounds[1] + 1):
-        solutions.extend(flex(length, plug_list, None, style, result_style))
+        solutions.extend(flex(length, plug_list, None,
+                              style, result_style, number))
     
     return solutions
 
@@ -112,8 +113,7 @@ if __name__ == '__main__':
                 ['3', '5', '5'],
                 ['5', '5', '3']]
     solve_b6 = flex(12, {'3': -1, '5': -1})
-    solve_c2 = [['1', '1'],
-                ['5', '1'],
+    solve_c2 = [['5', '1'],
                 ['5', '5']]
     solve_c5 = [['1', '5', '5', '5', '5'],
                 ['5', '5', '1', '5', '5'],

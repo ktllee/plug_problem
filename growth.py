@@ -1,19 +1,22 @@
 """
-code to calculate growth rate for plug puzzles using
-arbitrary numbers of cuisenaire plugs C_k = 11....1
+code to calculate growth rate for compositions with 
+Cuisenaire rods.
 
-last modified: 08/01/21
+last modified: 08/16/2021
 
 @author: Ethan Bolker
 """
 import sys
 import math
+from utilities import *
 from convolve import p2t
 from sympy import roots as sroots
 from sympy import solve as solve
 from sympy import factor as factor
 from numpy import *
-from utilities import *
+import numpy as np
+import numpy.polynomial.polynomial as poly
+
 from itertools import combinations
 
 def mygcd(mylist):
@@ -38,7 +41,8 @@ def build_recursion_polynomial(bits):
 
 def build_recursion_polynomial_coeffs(bits):
     ''' from input bit string 1011 build recursion polynomial
-        coefficients as list [1, -1, 0, -1, -1]
+        coefficients as list [-1, -1, 0, -1, 1].
+        Coefficients from constant term to degree 4.
     '''
     n = len(bits)
     coeffs = [1]
@@ -46,6 +50,7 @@ def build_recursion_polynomial_coeffs(bits):
         b = int(bits[j])
         coeffs.append(-b)
     coeffs.append(-1)        
+    coeffs.reverse()
     return coeffs
 
     
@@ -92,15 +97,18 @@ def csvout(input):
     elif isinstance(input, list):
         bits = spots2bitstring(input)
     else:
-        print(f"type error {d}")
+        print(f"type error {input}")
         return
     mypoly = build_recursion_polynomial(bits)
     fpoly = factor(mypoly)
     coeffs = build_recursion_polynomial_coeffs(bits)
-    print(f"{bits}@ {bitstring2spots(bits)}@ {growthrate(bits)}@ {mypoly}@ {fpoly}")# @ {roots(coeffs)}")            
+    r1 = poly.polyroots(coeffs)
+    maxroot = np.abs(max(r1))
+    theroots = np.round(np.abs(r1),3)    
+    print(f"{bits}@ {bitstring2spots(bits)}@ {maxroot}@ {mypoly}@ {fpoly} @ {theroots}")            
     return
 
-csvheader="d@ spots@ growth rate@ poly@ factored@ roots"    
+csvheader="d@ spots@ growth rate@ poly@ factored@ |roots|"    
 
 def growthratecsv(N):
     ''' Print spreadsheet input for odd plug numbers up to 2**N
@@ -129,18 +137,19 @@ def plugcountcsv( limit, count):
 #     print(f"count {count} limit {limit}")
     print(csvheader)
     possibles = list(range(limit+1)[1:])
-#     print(possibles)
-#     for j in possibles:
-#         print(j)
     counts = list(range(count+1))[1:]
-#     print(counts)
     for j in counts:
-#         print(j)
         spotsets = rSubset( possibles, j)
-#         print(spotsets)
         for spots in spotsets:
             csvout(list(spots))
     return 
+
+def extendXbyY(startbits, next, N):
+    bits = startbits
+    csvout(bits)
+    for i in range(N):
+        bits += next
+        csvout(bits)
 
 # I forget why I started this
 # def extend_d(bits):
@@ -156,24 +165,27 @@ def plugcountcsv( limit, count):
 #         print(f"{len(bits)}, {growthrate(bits)}, {delta}")        
 
 
-#  Execute 
+#  Execute
+
+
 if __name__ == "__main__":
 
-    if (len(sys.argv) == 1):
-        print(f"usage: python {sys.argv[0]} bits1 bits2 ...")
-    else:
-         for bits in sys.argv[1:]:
-             csvout(bits)             
+#     plugcountcsv( 12, 6)    
+    csvout([1,5])
+#     csvout([2,3,9])    
+# 
+#     startbits = "11"
+#     next = "001"
+#     N = 20
+#     extendXbyY(startbits, next, N)    
 
-#     plugcountcsv( 8, 3):             
+#     if (len(sys.argv) == 1):
+#         print(f"usage: python {sys.argv[0]} bits1 bits2 ...")
+#     else:
+#          for bits in sys.argv[1:]:
+#              csvout(bits)             
+# 
+
 #     growthratecsv(3)
-
-#     print(roots([1, -1, -1]))
-#     print(solve('x**2-x-1'))
-#     print(sroots([1, 0, 0, -1]))
-#     print(sroots([1, -1, 0, 0, 0, -1]))
-#     print(solve('x**5-x-1'))
-#     print(roots([1, -1, 0, 0, 0, -1]))    
-
 
 

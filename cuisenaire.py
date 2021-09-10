@@ -2,7 +2,7 @@
 code to calculate growth rate for compositions with 
 Cuisenaire rods.
 
-last modified: 08/16/2021
+last modified: 09/09/2021
 
 @author: Ethan Bolker
 
@@ -59,10 +59,16 @@ def build_recursion_polynomial_coeffs(bits):
     coeffs.reverse()
     return coeffs
 
+def growthrate(spots):
+    bits = spots2bitstring(spots)    
+    coeffs = build_recursion_polynomial_coeffs(bits)
+    r1 = poly.polyroots(coeffs)
+    maxroot = np.abs(max(r1))
+    return maxroot
 
 # This function is no longer called. The growth rate is
 # the largest root of the Cuisenaire polynomial.
-def growthrate(d):
+def xgrowthrate(d):
     ''' Calculate the growth rate for total solutions
     for the puzzle problem R(d). Here d is the  
     bit string specifying which C_k are allowed, 
@@ -93,7 +99,34 @@ def growthrate(d):
     return(rate)
 
 # def getroots( rodset ):
-    
+
+def rodsetattributes(input):
+    ''' Create dictionary of attributes the input (bit string or rod set).
+        Rod set should really be an object.
+    '''
+    if isinstance(input, str): # d is a bitstring like "101"
+        bits = input
+    elif isinstance(input, list):
+        bits = spots2bitstring(input)
+    else:
+        print(f"type error {input}")
+        return
+    data = {}
+    mypoly = build_recursion_polynomial(bits)
+    fpoly = factor(mypoly)
+    coeffs = build_recursion_polynomial_coeffs(bits)
+    r1 = poly.polyroots(coeffs)
+    maxroot = np.round(np.abs(max(r1)),10)
+    theroots = list(np.round(np.abs(r1),3))
+    data.update({"bits":bits})
+    data.update({"spots":bitstring2spots(bits)})
+    data.update({"growthrate":maxroot})
+    data.update({"cpoly":mypoly})
+    data.update({"factors":fpoly})
+    data.update({"roots":theroots})        
+    return data
+
+# should rewrite this function to call rodsetattributes(input)
 def csvout(input):
     ''' Print string with data about the input (bit string or rod set)
         suitable for spreadsheet input. 
@@ -110,7 +143,7 @@ def csvout(input):
     fpoly = factor(mypoly)
     coeffs = build_recursion_polynomial_coeffs(bits)
     r1 = poly.polyroots(coeffs)
-    maxroot = np.abs(max(r1))
+    maxroot = np.round(np.abs(max(r1)),10)
     theroots = np.round(np.abs(r1),3)    
     print(f"{bits}@ {bitstring2spots(bits)}@ {maxroot}@ {mypoly}@ {fpoly} @ {theroots}")            
     return
@@ -136,6 +169,7 @@ def rSubset(arr, r):
     # to deal with duplicate subsets use 
     # set(list(combinations(arr, r)))
     return list(combinations(arr, r))
+
 
 def rodcountcsv( limit, count):
     ''' Print spreadsheet input for all cuisenaire rod sets of 
@@ -188,7 +222,7 @@ def plotroots(rods):
     data = get_cuisenaire_poly_roots(rods)
     x = data.real
     y = data.imag
-    
+#         
     # plot the unit circle
     theta = np.linspace(0, 2*np.pi, 100)
     r = np.sqrt(1.0)
@@ -207,26 +241,61 @@ def plotroots(rods):
 #     plt.legend(rods)
     plt.show()    
     
+def checkAP(spots, m):
+    print(f"{spots} + {m}k")
+    max = 80
+    equiv = spots + list([m])
+    equiv.sort()
+    long = spots.copy()
+    for r in spots:
+        nextr = r+m
+        while nextr < max:
+            long.append(nextr)
+            nextr += m
+    long.sort()
+    print(f"{long} {growthrate(long)}")
+    print(f"{equiv} {growthrate(equiv)}")
+
+def findfamilies( limit, count):
+    ''' Collect cuisenaire rod sets of 
+        length up to limit using at most count rods
+        into families keyed by growthrate.
+    '''
+    families = {}    
+#     print(f"count {count} limit {limit}")
+    possibles = list(range(limit+1)[1:])
+    counts = list(range(count+1))[1:]
+    for j in counts:
+        spotsets = rSubset( possibles, j)
+        for spots in spotsets:
+            if mygcd(spots) > 1:
+                break
+            attributes = rodsetattributes(list(spots))
+            key = attributes.get("growthrate")
+            if families.get(key) == None:
+                families[key] = [list(attributes["spots"])]
+            else:
+                families[key].append(list(attributes["spots"]))
+    return families
+
 #  Execute
 
 if __name__ == "__main__":
 
-    rods = [1,3,5,7,9,11,13,15,16]
-    rods= [1, 4, 7, 10, 12]
-    plotroots(rods)
-
-    
-
-    padovan = [1,5]
-    padovan = [1, 5, 6, 9, 10, 11]
-#     padovan = [2, 3, 6, 7, 9, 11]
-#     plotroots(padovan)
-#     plotroots( [1, 4, 6, 7, 10])
-    #     rodcountcsv( 12, 6)    
-#     csvout([1,5])
-#     csvout([2,3])
-#     csvout([2,3,9])    
+    families = findfamilies( 30, 4)
+    for f in families.values():
+        if len(f) > 1:
+            print(f)
+            
+#     print(rodsetattributes([2,3]))
+#     checkAP([1,3],4)
+#     rodcountcsv( 10, 2)    
+#     
+#     rods = [1,3,5,7,9,11,13,15,16]
+#     rods= [1, 4, 7, 10, 12]
+#     plotroots(rods)
 # 
+#     
 #     startbits = "11"
 #     next = "001"
 #     N = 20

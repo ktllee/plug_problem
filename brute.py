@@ -49,7 +49,9 @@ def family(base, depth, root = 0, current = 0):
         new = []
         for semi in final:
             for piece in combos[i]:
-                new.append(semi + piece)
+                listy = semi + piece
+                listy.sort()
+                new.append(listy)
         final = new
     
     return final
@@ -93,14 +95,24 @@ def backwards(base, equal):
             
     return final
 
-
-# looking for others backwards with two as base
-for base in tworod:
-    group = family(base, 1)
-    result = backwards(base, group)
-    
-    if len(result) > 1:
-        print(result)
+if False:
+    # looking for others backwards with two as base
+    for base in tworod:
+        group = family(base, 1)
+        result = backwards(base, group)
+        
+        if len(result) > 1:
+            print(result)
+            
+    print("---")
+            
+    # three as a base
+    for base in threerod:
+        group = family(base, 1)
+        result = backwards(base, group)
+        
+        if len(result) > 1:
+            print(result)
         
 
 

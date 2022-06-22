@@ -1,5 +1,5 @@
 """
-Code to explore families of finite rod sets
+code to explore families of finite rod sets
 
 Usage: uncomment fragments after the line
 ###  code to execute here
@@ -8,8 +8,26 @@ last modified: 12/31/2021
 
 @author: Ethan Bolker
 
-to do: refactor to get remove the bitstrings. 
-Rod sets are specified by lists of rod lengths.
+to do: 
+
+Refactor to get remove translations to and from  bitstrings. 
+Rod sets are now specified by lists of rod lengths.
+
+Improve plotroots so that it plots all the circles corresponding to 
+the roots of the minimal polynomial, not just the one for the growth 
+rate.
+- problem same as below
+
+Add to rodsetattributes
+    data.shiftpoly({"shiftpoly":spolystr})
+containing the shift polynomial - that's the
+quotient of the cpoly and the minimal poly.
+- problem: the code in rodsetattributes knows only the
+  growth rate, not the factor of the cpoly that's the
+  minimal polynomial. If we can't easily figure this
+  out here, we might have to do it in findfamilies, when we 
+  know the minimal polynomial because it's (usually) the
+  first one encountered.
 """
 import sys
 import math
@@ -32,20 +50,26 @@ def mygcd(mylist):
     else:
         return math.gcd( mylist[0],mygcd(mylist[1:]))
 
+#     zzzzzzzzz
 def build_recursion_polynomial(spots):
     ''' from input spots = [1,2,2,2,4] build recursion polynomial
         x**3 - 3*x**2 - x**1 - 1
     '''    
     coeffs = build_cuisenaire_poly_coefficients(spots)
-#     print(coeffs)
     polystr = str(coeffs[0])
     for i in range(1,len(coeffs)-1):
         if coeffs[i] != 0:
-            polystr += str(coeffs[i]) + '*x**' + str(i)
+            c = coeffs[i]
+            if c > 0:
+                sign = str('+')
+            else:
+                sign = str('-')            
+            polystr +=  sign +  str(abs(c)) + '*x**' + str(i)
     polystr += '+ x**' + str(len(coeffs)-1)
     return polystr
-    
-def build_recursion_polynomial_coeffs(bits):
+
+# deprecated
+def xxxbuild_recursion_polynomial_coeffs(bits):
     ''' from input bit string 1011 build recursion polynomial
         coefficients as list [-1, -1, 0, -1, 1].
         Coefficients from constant term to degree 4.
@@ -99,28 +123,35 @@ def growthrate(rods):
     return maxroot
     
 def rodsetattributes(input):
-    ''' Create dictionary of attributes the input (rod set, maybe bit string).
+    ''' Create dictionary of attributes the input rod set.
         Rod set should really be an object.
     '''
-    if isinstance(input, str): # d is a bitstring like "101"
-        bits = input
-    elif isinstance(input, list):
-        bits = spots2bitstring(input)
-    else:
-        print(f"type error {input}")
-        return
+#     if isinstance(input, str): # d is a bitstring like "101"
+#         bits = input
+#     elif isinstance(input, list):
+#         bits = spots2bitstring(input)
+#     else:
+#         print(f"type error {input}")
+#         return
     data = {}
     mypoly = build_recursion_polynomial(input)
     fpoly = factor(mypoly)
-    coeffs = build_cuisenaire_poly_coefficients(input)
-    r1 = poly.polyroots(coeffs)
-    maxroot = np.round(np.abs(max(r1)),10)
+    coeffs = build_cuisenaire_poly_coefficients(input)    
+#     print("xxx mypoly", mypoly)
+#     print("xxx fpoly", fpoly)
+#     print("xxx", coeffs)
+    r1      = poly.polyroots(coeffs)
+    maxroot = np.round(max(np.abs(r1)),10)
     theroots = list(np.round(np.abs(r1),3))
+    fpolystr = str(fpoly)
+    fpolystr = fpolystr.replace("**","^").replace("*","").replace("^1 ","").replace("1x","x")        
+    mypolystr = str(mypoly)
+    mypolystr = mypolystr.replace("**","^").replace("*","").replace("^1 ","").replace("1x","x").replace("^1-","-")
 #     data.update({"bits":bits})
     data.update({"spots":input})
     data.update({"growthrate":maxroot})
-    data.update({"cpoly":mypoly})
-    data.update({"factors":fpoly})
+    data.update({"cpoly":mypolystr})
+    data.update({"factors":fpolystr})
 #     data.update({"roots":theroots})        
     return data
 
@@ -183,13 +214,23 @@ def rodcountcsv( limit, count):
             csvout(list(spots))
     return 
 
+# yyyyyyyyyy
 def build_cuisenaire_poly_coefficients(rods):
 #     degree = rods[len(rods)-1] # last entry
-    degree = max(rods)
+#     degree = max(rods)
+    degree = max(max(rods),-min(rods))
+    if degree==max(rods):
+        globalsign = 1
+    else:
+        globalsign = -1
     coeffs = [0]*(degree+1)
     for r in rods:
-        coeffs[degree-r] += -1 
+#         print(r, sign(r))        
+#         coeffs[degree-abs(r)] += -1
+        coeffs[degree-abs(r)] -= sign(r)*globalsign
+#         print(r, sign(r))
     coeffs[degree] = 1
+#     print(coeffs)
     return coeffs
 
 def get_cuisenaire_poly_roots(rods):
@@ -202,9 +243,9 @@ def plotroots(rods):
     x = data.real
     y = data.imag
 
-    # plot the unit circle
+    # plot the circle through the largest root
+    r = growthrate(rods);
     theta = np.linspace(0, 2*np.pi, 100)
-    r = np.sqrt(1.0)
     x1 = r*np.cos(theta)
     x2 = r*np.sin(theta)
 
@@ -263,10 +304,9 @@ def findfamilies( length, count):
     families = {}
     spotsetattributes = rodcountmultisets(length, count )
     for spots in spotsetattributes:
-        if len(spots['bits']) == 1:
-            continue
-#         print(spots)
-#         print()
+        
+#         if len(spots['bits']) == 1:
+#             continue
         key = spots.get("growthrate")
 #         print(key)
         if families.get(key) == None:
@@ -275,6 +315,7 @@ def findfamilies( length, count):
         families[key].append(spots)
     return families
 
+# zzzzzzzzzz
 def rodcountmultisets( length, limit):
     ''' Create list of attributes for all cuisenaire rod multisets of 
         length up to limit using at most count rods
@@ -377,20 +418,78 @@ def commonexpansion(rods1, rods2, depth):
     f2 = list(chain(*t2))    
     return [value for value in f1 if value in f2]    
 
+def cpolyisminimal(rods):
+    data = rodsetattributes(rods)
+    return not "(" in data.get("factors")
+
+def getrandomrodset(length, candidates):
+    rods = length*[0]
+    for i in range(length):
+        rods[-i] =  random.choice(candidates)
+    return list(sort(rods))
+
+def countminimalcpolys(count, length, rodrange):
+    ''' find the proportion of rod sets with minimal cpoly
+    in a random selection of count rod sets of given length
+    with elemens chosen from rodrange.
+    '''
+    minimalcount = 0
+    for i in range(count):
+        rods = getrandomrodset(length, rodrange)
+#         print(i,rods)
+        if cpolyisminimal(rods):
+            minimalcount += 1
+#         else:
+#             print(rodsetattributes(rods))
+    return minimalcount/count
+    
 ###  code to execute here
 if __name__ == "__main__":
 
-##    Print details about any particular rod set
-     print(rodsetattributes([1,2]))
+## default:
+##   Print details about rod set from command line
+    
+    if len(sys.argv) > 1:       
+        rodset =  list(map(int, sys.argv[1:]))
+        print(rodsetattributes( rodset))
+
+    rods= [4,4,4,4,6,9]
+    plotroots(rods)
+
+
+##  Print families with at least two members
+#   Separator '@' instead of ',' smooths spreadsheet import from
+#   csv file that's really now @sv
+# 
+#     families = findfamilies(3,4)
+#     for f in families.values():
+#         if len(f) > 2:
+#             print(f"{f[0]['growthrate']}")
+#             for i in range(len(f)):
+#                 cpoly = str(f[i]['cpoly'])
+#                 factors = str(f[i]['factors'])
+#                 print(f"@{f[i]['spots']}@{cpoly}@{factors}")
+
+
+##
+#     print("countminimalcpolys(count=100, length=10, rodrange=range(1,n))")
+#     for n in range(10,100,5):
+#         print(n, countminimalcpolys(count=100, length=10, rodrange=range(1,n)))
+# 
+    #     rods = [1,2]
+#     print(rods, cpolyisminimal(rods))
+#     rods = [1,5]
+#     print(rods, cpolyisminimal(rods))
+
+##    Print the intersection of the trees from two rod sets
+#     print(commonexpansion([1,3,3],[1,3,4,6,6],2))
+
 
 ##    Print the tree of expansions of a rod set to specified depth    
 #     rods = [2,3]    
 #     tree23 = buildtree(rods,3)
 #     for level in tree23:
 #         print(level)
-
-##    Print the intersection of the trees from two rod sets
-#     print(commonexpansion([1,5],[2,3],3))
 
 ##    Print the growthrate for a rod set
 #     print(growthrate([1,3,4]))
@@ -505,6 +604,8 @@ if __name__ == "__main__":
 #                 factors = factors.replace("*","")
 #                 factors = factors.replace("^1","")           
 #                 print(f"@{f[i]['spots']}@{cpoly}@{factors}")
+
+
 #                 print
 
 #     csvout([1,3])
@@ -513,10 +614,6 @@ if __name__ == "__main__":
 #     print(rodsetattributes([1,2,2,2,4]))
 #     csvout([1,3,4])
 #     print(rodsetattributes([1,3,4]))
-
-#     rods = [1,3,5,7,9,11,13,15,16]
-#     rods= [1, 4, 7, 10, 12]
-#     plotroots(rods)
     
 #     find all rod sets of length 2, extract growthrate and rods for excel
 #       data = rodcount(40,2)

@@ -143,6 +143,7 @@ def rodsetattributes(input):
     r1      = poly.polyroots(coeffs)
     maxroot = np.round(max(np.abs(r1)),10)
     theroots = list(np.round(np.abs(r1),3))
+    rootlengths = list(set(theroots))    
     fpolystr = str(fpoly)
     fpolystr = fpolystr.replace("**","^").replace("*","").replace("^1 ","").replace("1x","x")        
     mypolystr = str(mypoly)
@@ -152,7 +153,8 @@ def rodsetattributes(input):
     data.update({"growthrate":maxroot})
     data.update({"cpoly":mypolystr})
     data.update({"factors":fpolystr})
-#     data.update({"roots":theroots})        
+#     data.update({"roots":theroots})
+    data.update({"rootlengths":rootlengths})            
     return data
 
 # should rewrite this function to call rodsetattributes(input)
@@ -452,9 +454,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:       
         rodset =  list(map(int, sys.argv[1:]))
         print(rodsetattributes( rodset))
-
-    rods= [4,4,4,4,6,9]
-    plotroots(rods)
+        plotroots(rodset)
 
 
 ##  Print families with at least two members

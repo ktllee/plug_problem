@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-last modified: jul 6, 2022
+last modified: aug 6, 2022
 
 @author: katie
 
@@ -35,8 +35,9 @@ description:
         coefcon (helper) - switch between polynomial string and coef list
         
     dependencies:
-        factor() from sympy
-        polyroots() from numpy.polynomial.polynomial
+        numpy as np
+        factor_list() from sympy
+        polyroots() and polydiv() from numpy.polynomial.polynomial
         
 """
 # dependencies
@@ -238,11 +239,11 @@ class Rodset:
                 minimal.append(fac)
         if len(minimal) == 1:
             minimal = minimal[0]
+            shiftcoefs = [int(x) if x.is_integer else x for x in \
+                          polydiv(coeffs, self.coefcon(minimal))[0].tolist()]
+            shift = self.coefcon(shiftcoefs)
         else:
-            raise ValueError('multiple or no minimal polynomials found')
-        shiftcoefs = [int(x) if x.is_integer else x for x in \
-                      polydiv(coeffs, self.coefcon(minimal))[0].tolist()]
-        shift = self.coefcon(shiftcoefs)
+            shift = 'minimal error'
         self.minimal = minimal
         self.shift = shift
         

@@ -1,49 +1,102 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Sep 18 15:11:37 2021
+last modified: aug 6, 2022
 
 @author: katie
+
+description:
+    contains functions to "brute force" data involving rod sets
+    (for problems involving sets of cuisenaire rods)
+    
+    note: many of the functions SHOULD NOT be run on a large scale
+    
+    functions:
+        multi - finds all multisets up to a certain length
+        expandall - finds all members of a tree by expanding only
+        growsearch - finds rod sets with particular growth rate
+        
+        
+    dependencies:
+        itertools as it
+        Rodset class from rods.py
+        
+        tqdm (optional for convenience with big datasets)
+        
 """
 
-# trying to brute force backwards flow on trees
 # dependencies
 import itertools as it
+from rods import Rodset
+from tqdm import tqdm
 
-# initializing a few different start combinations
-start = list(range(1, 31))
-tworod = it.combinations(start, 2)
-threerod = it.combinations(start, 3)
+# aliases
+comb = it.combinations_with_replacement
 
-# recursive function to look for all possible equalities
-def family(base, depth, root = 0, current = 0):
+
+# the function
+def multi(length, limit):
     ''' takes:
-            base - a list of integers
-            depth - the depth of tree to try until
-            root - where to start from
-            current - current depth
-        returns: the whole family to depth
+            length - maximum length of the multisets, inclusive
+            limit - maximum integer to be included, inclusive
+            
+        returns: a list of all multisets with positive ints and constraints
         
-        does the thing recursively
+        finds all multisets with a maximum length (minimum 2) containing
+        positive integers up to a maximum limit.
+        
+        dependencies:
+            combinations_with_replacement from itertools as comb
+    '''
+    
+    if not all((isinstance(length, int), isinstance(limit, int))):
+        raise TypeError('length and limit must be ints')
+        
+    if not all(((length > 1), (limit > 0))):
+        raise ValueError('limit must be positive and length must be > 1')
+    
+    # set up a list of integers to be used
+    integers = list(range(1, limit + 1))
+    
+    # initiate a list
+    final = []
+    
+    # find combinations with replacement for each length
+    for i in range(2, length + 1):
+        final.extend([list(x) for x in comb(integers, i)])
+    
+    return final
+
+
+# recursive function to look for all things in a tree by expanding only
+def expandall(seed, depth, root = 0, current = 0):
+    ''' takes:
+            seed - a list of integers
+            depth - the depth of tree to try until
+            root - where to start from [do not use]
+            current - current depth [do not use]
+        returns: the whole family to depth levels
+        
+        finds everything possible in the tree recursively
+        where a tree is created solely by expansion
     '''
     # base case
     if current > depth:
         return None
     
-    # start with root
-    start = [x + root for x in base]
+    # account for latest "root" (e.g the root is 2 for the 2-leg in [2,3])
+    start = [x + root for x in seed]
     
     # initialize family list
     combos = [[] for i in range(len(start))]
     
-    # creates a tree and finds all possible prunings
+    # finds all possible prunings for each leg recursively
     for i in range(len(start)):
         combos[i].append([start[i]])
-        deeper = family(start, depth, start[i], current + 1)
+        deeper = expandall(seed, depth, start[i], current + 1)
         if deeper != None:
             combos[i].extend(deeper)
     
-    # combine legs
+    # combine different legs by taking all combos
     final = [[]]
     for i in range(len(start)):
         new = []
@@ -56,76 +109,57 @@ def family(base, depth, root = 0, current = 0):
     
     return final
 
-# function to look through a list for backwards
-def backwards(base, equal):
-    ''' takes:
-            base - a list of integers
-            equal - a list to look through
-        returns: a list of backwards-possible combos
-        
-        does the thing recursively
-    '''
-    # differences
-    ordered = sorted(base)
-    diff = [x - ordered[0] for x in ordered]
-    
-    # sorted equal
-    fixed = [sorted(x) for x in equal]
-    
-    # looking through lists
-    maybe = []
-    for state in fixed:
-        for group in it.combinations(state, len(diff)):
-            ordy = sorted(group)
-            norm = [x - ordy[0] for x in ordy]
-            
-            if norm == diff:
-                maybe.append([state, group])
-                
-    # check through maybes
-    final = []
-    for possible in maybe:
-        poss = possible[0].copy()
-        for piece in possible[1]:
-            poss.remove(piece)
-        poss.append(possible[1][0] - ordered[0])
-        poss.sort()
-        if poss not in fixed:
-            final.append([poss, possible[0]])
-            
-    return final
 
-if False:
-    # looking for others backwards with two as base
-    for base in tworod:
-        group = family(base, 1)
-        result = backwards(base, group)
+# find rod sets of a certain size that have a particular growth rate
+def growthsearch(seed, maxcount, maxsmall = 50):
+    ''' takes:
+            seed - base rod set to match to
+            maxcount - max number of rods in set
+            maxsmall - the largest rod length to test to
+        returns: all rod sets with reasonable growth rate matches
         
-        if len(result) > 1:
-            print(result)
-            
-    print("---")
-            
-    # three as a base
-    for base in threerod:
-        group = family(base, 1)
-        result = backwards(base, group)
+        finds rod sets with matching growth rates up to a max number of rods
+        riffs on ethan's idea to close in on a growth rate
+    '''
+    # set up initial rodset
+    start = Rodset(seed)
+    growth = start.growth
+    found = []
+    
+    # search through everything with maxcount or fewer rods
+    # with all rods of length <= maxsmall
         
-        if len(result) > 1:
-            print(result)
-            
-            
-import time
-def pairs(first, second):
-    for x in first:
-        if x in second:
-            print(first, second)
-            print()
-            time.sleep(15)
-            
-for two in it.combinations(threerod, 2):
-    pairs(family(two[0],1), family(two[1],1))
         
+    
+    
+    
+    return
+
+
+##################################################
+# uses
+# a few different start combinations to use
+start = list(range(1, 31))
+tworod = it.combinations(start, 2)
+threerod = it.combinations(start, 3)
+
+
+# big data search
+def everything(maxcount, maxlen, path):
+    ''' takes:
+            maxcount - maximum number of rods per rodset
+            maxlen - maximum length of any single rod
+            path - path to text file to save the data
+        returns: None
+        
+        saves a bunch of data, no particular family just everything
+        gives a progress bar
+    '''
+    for x in tqdm(multi(maxcount, maxlen)):
+        attr = Rodset(x)
+        print(x, attr.growth, attr.minimal, attr.shift, sep = '\t',
+              file = open(path, 'a'))
+    return
 
 
 

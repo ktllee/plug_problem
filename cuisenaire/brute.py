@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-last modified: aug 6, 2022
+last modified: aug 7, 2022
 
 @author: katie
 
@@ -15,9 +15,9 @@ description:
         expandall - finds all members of a tree by expanding only
         growsearch - finds rod sets with particular growth rate
         
-        
     dependencies:
         itertools as it
+        numpy as np
         Rodset class from rods.py
         
         tqdm (optional for convenience with big datasets)
@@ -26,11 +26,13 @@ description:
 
 # dependencies
 import itertools as it
+import numpy as np
 from rods import Rodset
 from tqdm import tqdm
 
 # aliases
 comb = it.combinations_with_replacement
+polyroots = np.polynomial.polynomial.polyroots
 
 
 # the function
@@ -76,8 +78,8 @@ def expandall(seed, depth, root = 0, current = 0):
             current - current depth [do not use]
         returns: the whole family to depth levels
         
-        finds everything possible in the tree recursively
-        where a tree is created solely by expansion
+        finds everything possible in a tree recursively,
+        where a tree is created solely by expansion.
     '''
     # base case
     if current > depth:
@@ -111,29 +113,91 @@ def expandall(seed, depth, root = 0, current = 0):
 
 
 # find rod sets of a certain size that have a particular growth rate
-def growthsearch(seed, maxcount, maxsmall = 50):
+def growthsearch(seed, maxcount, maxlen = 50, tol = 0.01, tune = True):
     ''' takes:
             seed - base rod set to match to
             maxcount - max number of rods in set
-            maxsmall - the largest rod length to test to
+            maxlen - the largest rod length to test to
+            tol - the tolerance to keep testing to*
         returns: all rod sets with reasonable growth rate matches
         
-        finds rod sets with matching growth rates up to a max number of rods
-        riffs on ethan's idea to close in on a growth rate
+        finds rod sets with matching growth rates up to a max number of rods.
+        riffs on ethan's idea to close in on a growth rate.
+        
+        *tol sets a value of difference in growth rates at which to stop
+        where the difference is (growth - 1)*tol.
     '''
+    # checks
+    if not all((isinstance(maxcount, int), isinstance(maxlen, int))):
+        raise TypeError('maxcount and maxlen must be positive integers')
+    if not isinstance(tol, float):
+        raise TypeError('tol must be a float')
+    if (tol < 0) or (tol > 1):
+        raise ValueError('tol must be between 0 and 1')
+    
     # set up initial rodset
     start = Rodset(seed)
     growth = start.growth
+    tol_scaled = (growth - 1) * (1 - tol)
     found = []
+    progress = tqdm(desc = 'current first rod', total = maxlen)
     
     # search through everything with maxcount or fewer rods
-    # with all rods of length <= maxsmall
-        
-        
-    
-    
-    
-    return
+    # with all rods of length <= maxlen
+    # first candidate
+    candlist = [1, 1]
+    progress.update(1)
+    try:
+        while True:
+            # find growthrate
+            coeffs = [-int(x) for x in Rodset.spotcon(candlist)][::-1] + [1]
+            candgrowth = max(np.round(np.abs(polyroots(coeffs)), 10))
+            diff = growth - candgrowth
+            
+            # add to list if the current candidate matches
+            if diff == 0:
+                found.append(candlist.copy())
+                # try a set with a larger rod
+                candlist[-1] += 1
+            
+            # if cand growth is too small
+            elif diff > 0:
+                # if possible, add a rod
+                if maxcount > len(candlist):
+                    candlist.append(candlist[-1])
+                # if rod limit has been reached, stop
+                else:
+                    # skip to next if a rod is too large
+                    if any([x >= maxlen for x in candlist]):
+                        maxind = candlist.index(maxlen)
+                        if maxind == 0:
+                            if tune:
+                                print('reached full max rods')
+                            break
+                        elif maxind == 1:
+                            candlist = [candlist[0] + 1, candlist[0] + 1]
+                            progress.update(candlist[0])
+                        else:
+                            candlist[maxind - 1] += 1
+                            candlist = candlist[:maxind]
+                    # skip to next if the difference is too much
+                    elif diff > tol_scaled:
+                        if tune:
+                            print('reached tolerance')
+                        break
+                    else:
+                        candlist[-2] += 1
+                        candlist = candlist[:-1]
+                        
+            # if cand growth is too large
+            elif diff < 0:
+                candlist[-1] += 1
+    except:
+        progress.close()
+        return found
+            
+    progress.close()
+    return found
 
 
 ##################################################

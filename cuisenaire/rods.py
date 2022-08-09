@@ -64,9 +64,9 @@ class Rodset:
     @staticmethod
     def spotcon(rep):
         ''' changes a string representaion of a rodset to a list
-            or vice versa
+            or vice versa.
             
-            note: assumes rep is already correctly one or the other
+            note: assumes rep is already correctly one or the other.
         '''
         
         # string to list
@@ -87,7 +87,7 @@ class Rodset:
     @staticmethod
     def coefcon(poly):
         ''' changes a string representaion of a polynomial to a list of coefs
-            or vice versa
+            or vice versa.
             
             note:
                 - assumes rep is already correctly one or the other
@@ -167,7 +167,7 @@ class Rodset:
     # initialize
     def __init__(self, represent):
         ''' intitalizes from a descriptive attribute (represent),
-            either list of lengths (basic) or bit string (string)
+            either list of lengths (basic) or bit string (string).
                 
             also initializes:
                 coeffs
@@ -179,7 +179,7 @@ class Rodset:
                 minimal
                 shift
                 
-            note: ONLY works for rod polys
+            note: ONLY works for rod polys.
         '''
         
         # find which argument was given and fill others
@@ -250,7 +250,7 @@ class Rodset:
         
     # represent
     def __repr__(self):
-        ''' basic (list) representation
+        ''' basic (list) representation.
         '''
         
         return self.basic
@@ -258,7 +258,7 @@ class Rodset:
     
     # equal
     def __eq__(self, other):
-        ''' rodsets are the same if they have the same string
+        ''' rodsets are the same if they have the same string.
             if other is not Rodset, return False.
         '''
         
@@ -276,7 +276,7 @@ class Rodset:
         ''' takes: self
             returns: a deep copy of self
             
-            note that this carries over any manually-created quirks
+            note that this carries over any manually-created quirks.
         '''
         
         new = Rodset('1')

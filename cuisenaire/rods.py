@@ -99,6 +99,7 @@ class Rodset:
             # find degrees and coefficients
             power = {}
             sign = 1
+            poly = poly.replace('^', '**')
             for t in poly.split():
                 if t == '-':
                     sign = -1
@@ -149,14 +150,14 @@ class Rodset:
                     elif deg == 1:
                         term += 'x'
                     elif deg < top:
-                        term += f"x**{deg}"
+                        term += f"x^{deg}"
                     else:
                         if coef == 1:
-                            term = f"x**{deg}"
+                            term = f"x^{deg}"
                         elif coef == -1:
-                            term = f"-x**{deg}"
+                            term = f"-x^{deg}"
                         else:
-                            term = f"{coef}*x**{deg}"
+                            term = f"{coef}*x^{deg}"
                 # add to converted
                 converted = term + converted
         
@@ -228,7 +229,8 @@ class Rodset:
         self.fullpoly = fullpoly
         
         # factored
-        facpoly = [(str(x[0]), x[1]) for x in factor_list(fullpoly)[1]]
+        facpoly = [(str(x[0]).replace('**', '^'), x[1]) for x in \
+                   factor_list(fullpoly)[1]]
         self.facpoly = facpoly
         
         # minimal and shift

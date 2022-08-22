@@ -167,6 +167,11 @@ def growthsearch(seed, maxcount, maxlen = 50, tol = 0.01, tune = True):
                     candlist.append(candlist[-1])
                 # if rod limit has been reached, stop
                 else:
+                    # stop if all rods are the same
+                    if len(set(candlist)) == 1:
+                        if tune:
+                            print('reached max identical set')
+                        break
                     # skip to next if a rod is too large
                     if any([x >= maxlen for x in candlist]):
                         maxind = candlist.index(maxlen)

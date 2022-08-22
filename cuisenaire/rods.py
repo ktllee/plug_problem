@@ -10,19 +10,18 @@ description:
     
     the Rodset class contains defining information for a group of rods.
     
-    initiated with a string or list of rods in the set.
-    (e.g. the padovans would be [2,3] or '011'.  note [2,2] is '02')
+    initiated with a dictionary of counts or list of rods in the set.
     
-    represented by string descriptor.
-    rodsets with the same string representation are equivalent.
+    represented by list (basic) descriptor.
+    rodsets with the same basic representation are equivalent.
     
     attributes:
         basic - list of rod lengths
-        string - string listing rod lengths (e.g. 011 = [2,3])
+        counts - dict listing rod lengths (e.g. [2,3] = {1:0, 2:1, 3:1})
         coeffs - list of coeffs for the rod polynomial
         roots - all the roots (absolute value, rounded to 10 places)
         growth - max root
-        size - degree of polynomial
+        order - degree of polynomial
         fullpoly - the full polynomial, written out
         facpoly - the full polynomial factored
         minimal - the minimal polynomial
@@ -31,7 +30,7 @@ description:
     methods:
         init, repr, eq
         copy - deep copy
-        spotcon (helper) - switch between basic and string representations
+        spotcon (helper) - switch between list and dictionary representations
         coefcon (helper) - switch between polynomial string and coef list
         
     dependencies:
@@ -63,22 +62,31 @@ class Rodset:
     # helper: string to basic converter
     @staticmethod
     def spotcon(rep):
-        ''' changes a string representaion of a rodset to a list
+        ''' changes a dictionary representaion of a rodset to a list
             or vice versa.
             
-            note: assumes rep is already correctly one or the other.
+            note:
+                - assumes rep is already correctly one or the other
+                - [1,-3,-3,4] <-> {1:1, 2:0, 3:-2, 4:1}
         '''
         
-        # string to list
+        # dict to list
         if isinstance(rep, str):
             converted = []
-            for i in range(len(rep)):
-                converted.extend([i + 1 for x in range(int(rep[i]))])
+            for key in rep:
+                converted.extend([key if rep[key] > 0 else -key for \
+                                  x in range(abs(rep[key]))])
             
-        # list to string
+        # list to dict
         elif isinstance(rep, list):
-            converted = \
-                ''.join([str(rep.count(x + 1)) for x in range(max(rep))])
+            converted = {}
+            for i in range(abs(max(rep, key = abs))):
+                pos = rep.count(i + 1)
+                neg = rep.count(-(i + 1))
+                if pos >= neg:
+                    converted[i + 1] = pos
+                else:
+                    converted[i + 1] = -neg
         
         return converted
     
@@ -125,41 +133,48 @@ class Rodset:
         elif isinstance(poly, list):
             converted = ''
             top = len(poly) - 1
-            # iterate through coefficients
-            for deg, coef in enumerate(poly):
-                if top == 0:
-                    converted = str(coef)
-                    break
-                term = ''
-                # handle coefficient
-                if coef == 1:
-                    term += ' + '
-                elif coef == -1:
-                    term += ' - '
-                elif coef > 0:
-                    term += f" + {coef}*"
-                elif coef < 0:
-                    term += f" - {abs(coef)}*"
-                # handle degree
-                if coef != 0:
-                    if deg == 0:
-                        if abs(coef) == 1:
-                            term += '1'
-                        else:
-                            term = term[:-1]
-                    elif deg == 1:
-                        term += 'x'
-                    elif deg < top:
-                        term += f"x^{deg}"
-                    else:
-                        if coef == 1:
-                            term = f"x^{deg}"
-                        elif coef == -1:
-                            term = f"-x^{deg}"
-                        else:
-                            term = f"{coef}*x^{deg}"
-                # add to converted
-                converted = term + converted
+            if top == 0:
+                converted = str(poly[0])
+            else:
+                # iterate through coefficients
+                for deg, coef in enumerate(poly):
+                    term = ''
+                    # handle coefficient
+                    if coef == 1:
+                        term += ' + '
+                    elif coef == -1:
+                        term += ' - '
+                    elif coef > 0:
+                        term += f" + {coef}*"
+                    elif coef < 0:
+                        term += f" - {abs(coef)}*"
+                    # handle degree
+                    if coef != 0:
+                        if deg == 0:
+                            if abs(coef) == 1:
+                                term += '1'
+                            else:
+                                term = term[:-1]
+                        elif deg == top:
+                            if coef == 1:
+                                if deg == 1:
+                                    term = "x"
+                                else:
+                                    term = f"x^{deg}"
+                            elif coef == -1:
+                                if deg == 1:
+                                    term == "-x"
+                                else:
+                                    term = f"-x^{deg}"
+                            else:
+                                term = f"{coef}*x^{deg}"
+                        elif deg == 1:
+                            term += 'x'
+                        elif deg < top:
+                            term += f"x^{deg}"
+                            
+                    # add to converted
+                    converted = term + converted
         
         return converted
     
@@ -174,7 +189,7 @@ class Rodset:
                 coeffs
                 roots
                 growth
-                size
+                order
                 fullpoly
                 facpoly
                 minimal
@@ -185,10 +200,9 @@ class Rodset:
         
         # find which argument was given and fill others
         # also raise errors for invalid values and types
-        # string (e.g. 011 == [2,3])
-        if isinstance(represent, str):
+        if isinstance(represent, dict):
             if represent.isnumeric():
-                string = represent
+                counts = represent
                 basic = self.spotcon(represent)
             else:
                 raise ValueError('string representation must be numeric')
@@ -196,9 +210,9 @@ class Rodset:
         # list of rod lengths
         elif isinstance(represent, list):
             if all(isinstance(x, int) for x in represent):
-                represent.sort()
+                represent.sort(key = abs)
                 basic = represent
-                string = self.spotcon(represent)
+                counts = self.spotcon(represent)
             else:
                 raise ValueError('list representation must contain ints')
         
@@ -208,21 +222,22 @@ class Rodset:
             
         # initialize attributes
         # given attributes
-        self.string = string
+        self.counts = counts
         self.basic = basic
         
         # polynomials
         # coefficients
-        coeffs = [-int(x) for x in string][::-1] + [1]
+        coeffs = \
+            [-counts[x + 1] for x in range(max(counts.keys()))][::-1] + [1]
         self.coeffs = coeffs
         
         # growth rate
         roots = np.round(np.abs(polyroots(coeffs)), 10)
         growth = max(roots)
-        size = len(coeffs) - 1
+        order = len(coeffs) - 1
         self.roots = roots
         self.growth = growth
-        self.size = size
+        self.order = order
         
         # full polynomial
         fullpoly = self.coefcon(coeffs)

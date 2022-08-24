@@ -3,47 +3,41 @@
 fluidPage(
   
   # overall title
-  titlePanel('Testing Trees'),
+  titlePanel('Comparing Rod Sets'),
   
-  # select rods
+  # select rods 1
   textInput(
-    'rods',
+    'rods1',
     'Base rod lengths',
     width = '90%',
     placeholder = 'Enter values separated by commas...'),
   
-  # outputs and controls
-  sidebarLayout(
-    
-    # sidebar
-    sidebarPanel(
-      width = 3,
-      HTML('Options:'), br(), br(),
-      actionButton('expand', 'Expand'), br(),
-      actionButton('prune', 'Prune')
-    ),
-    
-    # growth rate, polynomials, etc.
-    mainPanel(
-      width = 9,
-      fluidPage(
-        fluidRow(
-          column(
-            width = 4,
-            HTML('Growth rate:'),
-            textOutput('growth')),
-          column(
-            width = 8,
-            HTML('Full polynomial:'),
-            textOutput('full_poly'))
-        ), br(),
-        fluidRow(
-          column(
-            width = 12,
-            HTML('Minimal polynomial:'),
-            textOutput('min_poly'))
-        ),br(),br(),
-        fluidRow(visNetworkOutput('graph')))
-    ))
+  # select rods 2
+  textInput(
+    'rods2',
+    'Base rod lengths',
+    width = '90%',
+    placeholder = 'Enter values separated by commas...'),
+  
+  # select rods 3
+  textInput(
+    'rods3',
+    'Base rod lengths',
+    width = '90%',
+    placeholder = 'Enter values separated by commas...'),
+  
+  # select rods 4
+  textInput(
+    'rods4',
+    'Base rod lengths',
+    width = '90%',
+    placeholder = 'Enter values separated by commas...'),
+  
+  # select rods 5
+  textInput(
+    'rods5',
+    'Base rod lengths',
+    width = '90%',
+    placeholder = 'Enter values separated by commas...')
   
 )

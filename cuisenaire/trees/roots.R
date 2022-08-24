@@ -1,5 +1,6 @@
 # helpers - for growth, equations, etc.
 
+# quick and small example
 dat <- read_csv('cuisenaire/trees/example.txt')
 fib <- graph_from_data_frame(dat)
 visIgraph(fib) %>% 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-last modified: aug 6, 2022
+last modified: aug 24, 2022
 
 @author: katie
 
@@ -18,7 +18,7 @@ description:
     attributes:
         basic - list of rod lengths
         counts - dict listing rod lengths (e.g. [2,3] = {1:0, 2:1, 3:1})
-        coeffs - list of coeffs for the rod polynomial
+        coefs - list of coefs for the rod polynomial
         roots - all the roots (absolute value, rounded to 10 places)
         growth - max root
         order - degree of polynomial
@@ -30,11 +30,14 @@ description:
     methods:
         init, repr, eq
         copy - deep copy
+        isminimal - is the rodset minimal?
+        plotroots - plot the roots on the complex plane
         spotcon (helper) - switch between list and dictionary representations
         coefcon (helper) - switch between polynomial string and coef list
         
     dependencies:
         numpy as np
+        matplotlib.pyplot as plt
         factor_list() from sympy
         polyroots() and polydiv() from numpy.polynomial.polynomial
         
@@ -42,6 +45,7 @@ description:
 # dependencies
 # packages
 import numpy as np
+import matplotlib.pyplot as plt
 
 # functions
 from sympy import factor_list
@@ -186,7 +190,7 @@ class Rodset:
             either list of lengths (basic) or bit string (string).
                 
             also initializes:
-                coeffs
+                coefs
                 roots
                 growth
                 order
@@ -227,20 +231,20 @@ class Rodset:
         
         # polynomials
         # coefficients
-        coeffs = \
+        coefs = \
             [-counts[x + 1] for x in range(max(counts.keys()))][::-1] + [1]
-        self.coeffs = coeffs
+        self.coefs = coefs
         
         # growth rate
-        roots = np.round(np.abs(polyroots(coeffs)), 10)
+        roots = np.round(np.abs(polyroots(coefs)), 10)
         growth = max(roots)
-        order = len(coeffs) - 1
+        order = len(coefs) - 1
         self.roots = roots
         self.growth = growth
         self.order = order
         
         # full polynomial
-        fullpoly = self.coefcon(coeffs)
+        fullpoly = self.coefcon(coefs)
         self.fullpoly = fullpoly
         
         # factored
@@ -257,7 +261,7 @@ class Rodset:
         if len(minimal) == 1:
             minimal = minimal[0]
             shiftcoefs = [int(x) if x.is_integer else x for x in \
-                          polydiv(coeffs, self.coefcon(minimal))[0].tolist()]
+                          polydiv(coefs, self.coefcon(minimal))[0].tolist()]
             shift = self.coefcon(shiftcoefs)
         else:
             shift = 'minimal error'
@@ -270,19 +274,19 @@ class Rodset:
         ''' basic (list) representation.
         '''
         
-        return self.basic
+        return str(self.basic)
     
     
     # equal
     def __eq__(self, other):
-        ''' rodsets are the same if they have the same string.
+        ''' rodsets are the same if they have the same list of rods.
             if other is not Rodset, return False.
         '''
         
         if not isinstance(other, Rodset):
             return False
         
-        if self.string == other.string:
+        if self.basic == other.basic:
             return True
         else:
             return False
@@ -302,6 +306,53 @@ class Rodset:
             new.__dict__[key] = self.__dict__[key]
         
         return new
+    
+    
+    # check if rodset is minimal
+    def isminimal(self):
+        ''' takes: self
+            returns: bool of whether the rodset is minimal
+        '''
+        return self.shift == '1'
+    
+    
+    # plot roots
+    def plotroots(self):
+        ''' takes: self
+            returns: None
+            
+            shows plot of roots on the complex plane
+        '''
+        
+        # find roots  
+        data = polyroots(self.coefs)
+        x = data.real
+        y = data.imag
+    
+        # circle through roots of minimal poly
+        cdata = np.round(np.abs(polyroots(self.coefcon(self.minimal))), 10)
+        circles = []
+        for c in cdata:
+            circles.append(plt.Circle((0,0), c, fill = False, ec = 'r'))
+        
+        # plot
+        # roots
+        fig, ax = plt.subplots()
+        ax.plot(x, y, 'b*')
+        plt.xlabel(str(self.basic))
+        # circles
+        for c in circles:
+            ax.add_patch(c)
+            
+        # sizing
+        ax.set_aspect('equal')
+        gmax = self.growth * 1.1
+        plt.xlim(-gmax, gmax)
+        plt.ylim(-gmax, gmax)
+    
+        plt.show()
+        
+        return
 
 
 ##### ##! testing in progress - below is a template for object testing

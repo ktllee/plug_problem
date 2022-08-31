@@ -330,16 +330,18 @@ class Rodset:
         y = data.imag
     
         # circle through roots of minimal poly
-        cdata = np.round(np.abs(polyroots(self.coefcon(self.minimal))), 10)
         circles = []
-        for c in cdata:
-            circles.append(plt.Circle((0,0), c, fill = False, ec = 'r'))
+        if self.shift != 'minimal error':
+            cdata = np.round(np.abs(polyroots(self.coefcon(self.minimal))), 10)
+            for c in cdata:
+                circles.append(plt.Circle((0,0), c, fill = False, ec = 'r'))
         
         # plot
         # roots
         fig, ax = plt.subplots()
         ax.plot(x, y, 'b*')
-        plt.xlabel(str(self.basic))
+        if len(self.basic) < 10:
+            plt.xlabel(str(self.basic))
         # circles
         for c in circles:
             ax.add_patch(c)

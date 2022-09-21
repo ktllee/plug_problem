@@ -135,6 +135,9 @@ def growthsearch(seed, maxcount, maxlen = 50, tol = 0.01, tune = True):
     if (tol < 0) or (tol > 1):
         raise ValueError('tol must be between 0 and 1')
     
+    # debugging
+    tester = False
+    
     # set up initial rodset
     start = Rodset(seed)
     growth = start.growth
@@ -150,9 +153,16 @@ def growthsearch(seed, maxcount, maxlen = 50, tol = 0.01, tune = True):
     try:
         while True:
             # find growthrate
-            coeffs = [-int(x) for x in Rodset.spotcon(candlist)][::-1] + [1]
+            counts = Rodset.spotcon(candlist)
+            coeffs = \
+                [-counts[x + 1] for x in range(max(counts.keys()))][::-1] + [1]
             candgrowth = max(np.round(np.abs(polyroots(coeffs)), 10))
             diff = growth - candgrowth
+            
+            # debugging
+            if tester:
+                print(candlist)
+                print('growth:', growth, ', candgrowth:', candgrowth)
             
             # add to list if the current candidate matches
             if diff == 0:

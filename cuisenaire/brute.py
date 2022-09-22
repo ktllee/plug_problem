@@ -215,6 +215,110 @@ def growthsearch(seed, maxcount, maxlen = 50, tol = 0.01, tune = True):
     return found
 
 
+# find rod sets of a certain size that have a particular growth rate
+# and which only have a specified number or unique rods
+def twosearch(seed, maxcount,
+              setlim = 2, maxlen = 50, tol = 0.01, tune = True):
+    ''' takes:
+            seed - base rod set to match to
+            maxcount - max number of rods in set
+            maxlen - the largest rod length to test to
+            tol - the tolerance to keep testing to*
+        returns: all rod sets with reasonable growth rate matches
+        
+        finds rod sets with matching growth rates up to a max number of rods.
+        riffs on ethan's idea to close in on a growth rate.
+        
+        *tol sets a value of difference in growth rates at which to stop
+        where the difference is (growth - 1)*tol.
+    '''
+    # checks
+    if not all((isinstance(maxcount, int), isinstance(maxlen, int))):
+        raise TypeError('maxcount and maxlen must be positive integers')
+    if not isinstance(tol, float):
+        raise TypeError('tol must be a float')
+    if (tol < 0) or (tol > 1):
+        raise ValueError('tol must be between 0 and 1')
+    
+    # debugging
+    tester = False
+    
+    # set up initial rodset
+    start = Rodset(seed)
+    growth = start.growth
+    tol_scaled = (growth - 1) * (1 - tol)
+    found = []
+    
+    # search through everything with maxcount or fewer rods
+    # with all rods of length <= maxlen
+    # first candidate
+    candlist = [1, 1]
+    try:
+        while True:
+            # find growthrate
+            counts = Rodset.spotcon(candlist)
+            coeffs = \
+                [-counts[x + 1] for x in range(max(counts.keys()))][::-1] + [1]
+            candgrowth = max(np.round(np.abs(polyroots(coeffs)), 10))
+            diff = growth - candgrowth
+            
+            # debugging
+            if tester:
+                print(candlist)
+                print('growth:', growth, ', candgrowth:', candgrowth)
+            
+            # add to list if the current candidate matches
+            if diff == 0:
+                found.append(candlist.copy())
+                # try a set with a larger rod
+                candlist[-1] += 1
+            
+            # if cand growth is too small
+            elif diff > 0:
+                # if possible, add a rod
+                if maxcount > len(candlist):
+                    candlist.append(candlist[-1])
+                # if rod limit has been reached, stop
+                else:
+                    # stop if all rods are the same
+                    if len(set(candlist)) == 1:
+                        if tune:
+                            print('reached max identical set')
+                        break
+                    # skip to next if a rod is too large
+                    if any([x >= maxlen for x in candlist]):
+                        maxind = candlist.index(maxlen)
+                        if maxind == 0:
+                            if tune:
+                                print('reached full max rods')
+                            break
+                        elif maxind == 1:
+                            candlist = [candlist[0] + 1, candlist[0] + 1]
+                        else:
+                            candlist[maxind - 1] += 1
+                            candlist = candlist[:maxind]
+                    # skip to next if the difference is too much
+                    elif diff > tol_scaled:
+                        if tune:
+                            print('reached tolerance')
+                        break
+                    else:
+                        candlist[-2] += 1
+                        candlist = candlist[:-1]
+                        
+            # if cand growth is too large
+            elif diff < 0:
+                candlist[-1] += 1
+                
+                # skip to next if there are too many kinds
+                if len(set(candlist)) > setlim:
+                    candlist = [candlist[0] + 1, candlist[0] + 1]
+    except:
+        return found
+            
+    return found
+
+
 ##################################################
 # uses
 # a few different start combinations to use

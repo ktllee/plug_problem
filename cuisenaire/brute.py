@@ -18,6 +18,7 @@ description:
     dependencies:
         itertools as it
         numpy as np
+        math
         Rodset class from rods.py
         
         tqdm (optional for convenience with big datasets)
@@ -27,6 +28,7 @@ description:
 # dependencies
 import itertools as it
 import numpy as np
+import math
 from rods import Rodset
 from tqdm import tqdm
 
@@ -113,6 +115,7 @@ def expandall(seed, depth, root = 0, current = 0):
 
 
 # find rod sets of a certain size that have a particular growth rate
+### ! NOT CERTAIN THIS IS FUNCTIONAL BUT ABANDONED BECAUSE FAMILY REDEF
 def growthsearch(seed, maxcount, maxlen = 50, tol = 0.01, tune = True):
     ''' takes:
             seed - base rod set to match to
@@ -145,6 +148,25 @@ def growthsearch(seed, maxcount, maxlen = 50, tol = 0.01, tune = True):
     found = []
     progress = tqdm(desc = 'current first rod', total = maxlen)
     
+    # function to move from one candidate to next when one rod is at max
+    def reducemax(candlist, maxlen = maxlen, tune = tune):
+        # find the rod at maximum
+        maxind = candlist.index(maxlen)
+        # stop if all of them are
+        if maxind == 0:
+            if tune:
+                print('reached full max rods')
+            return None
+        # if the second one is, go to the next first rod
+        elif maxind == 1:
+            candlist = [candlist[0] + 1, candlist[0] + 1]
+            progress.update(candlist[0])
+        # if it's any other, remove it and increase the one before it
+        else:
+            candlist[maxind - 1] += 1
+            candlist = candlist[:maxind]
+        return candlist
+    
     # search through everything with maxcount or fewer rods
     # with all rods of length <= maxlen
     # first candidate
@@ -167,47 +189,52 @@ def growthsearch(seed, maxcount, maxlen = 50, tol = 0.01, tune = True):
             # add to list if the current candidate matches
             if diff == 0:
                 found.append(candlist.copy())
-                # try a set with a larger rod
-                candlist[-1] += 1
+                # try a set with a larger rod if possible
+                if any([x >= maxlen for x in candlist]):
+                    candlist = reducemax(candlist)
+                    if candlist == None:
+                        break
+                else:
+                    candlist[-1] += 1
             
             # if cand growth is too small
             elif diff > 0:
                 # if possible, add a rod
                 if maxcount > len(candlist):
                     candlist.append(candlist[-1])
-                # if rod limit has been reached, stop
+                # if rod limit has been reached:
                 else:
                     # stop if all rods are the same
                     if len(set(candlist)) == 1:
                         if tune:
                             print('reached max identical set')
                         break
-                    # skip to next if a rod is too large
-                    if any([x >= maxlen for x in candlist]):
-                        maxind = candlist.index(maxlen)
-                        if maxind == 0:
-                            if tune:
-                                print('reached full max rods')
-                            break
-                        elif maxind == 1:
-                            candlist = [candlist[0] + 1, candlist[0] + 1]
-                            progress.update(candlist[0])
-                        else:
-                            candlist[maxind - 1] += 1
-                            candlist = candlist[:maxind]
-                    # skip to next if the difference is too much
-                    elif diff > tol_scaled:
+                    # stop if difference is too much
+                    if diff > tol_scaled:
                         if tune:
                             print('reached tolerance')
                         break
+                    # skip to next if a rod is too large
+                    if any([x >= maxlen for x in candlist]):
+                        candlist = reducemax(candlist)
+                        if candlist == None:
+                            break
+                    # otherwise remove the final rod and increase
                     else:
                         candlist[-2] += 1
                         candlist = candlist[:-1]
                         
             # if cand growth is too large
             elif diff < 0:
-                candlist[-1] += 1
-    except:
+                if any([x >= maxlen for x in candlist]):
+                    candlist = reducemax(candlist)
+                    if candlist == None:
+                        break
+                else:
+                    candlist[-1] += 1
+                
+    except KeyboardInterrupt:
+        print('manual interrupt.')
         progress.close()
         return found
             
@@ -217,103 +244,57 @@ def growthsearch(seed, maxcount, maxlen = 50, tol = 0.01, tune = True):
 
 # find rod sets of a certain size that have a particular growth rate
 # and which only have a specified number or unique rods
-def twosearch(seed, maxcount,
-              setlim = 2, maxlen = 50, tol = 0.01, tune = True):
+def twosearch(seed, maxcount, maxlen = 50, setlim = 2):
     ''' takes:
             seed - base rod set to match to
-            maxcount - max number of rods in set
-            maxlen - the largest rod length to test to
-            tol - the tolerance to keep testing to*
-        returns: all rod sets with reasonable growth rate matches
+            maxcount - max number of each type of rod in set
+            maxlen - the largest rod length (abs)
+            setlim - number of unique rod lengths (default 2)
+        returns: all rod sets in a family with limited unique rods
         
-        finds rod sets with matching growth rates up to a max number of rods.
-        riffs on ethan's idea to close in on a growth rate.
-        
-        *tol sets a value of difference in growth rates at which to stop
-        where the difference is (growth - 1)*tol.
+        finds rod sets in a family with only a certain number of rods.
     '''
     # checks
-    if not all((isinstance(maxcount, int), isinstance(maxlen, int))):
-        raise TypeError('maxcount and maxlen must be positive integers')
-    if not isinstance(tol, float):
-        raise TypeError('tol must be a float')
-    if (tol < 0) or (tol > 1):
-        raise ValueError('tol must be between 0 and 1')
+    if not all((isinstance(maxcount, int),
+                isinstance(maxlen, int),
+                isinstance(setlim, int))):
+        raise TypeError('maximums must be positive integers')
     
     # debugging
     tester = False
     
-    # set up initial rodset
+    # set up initial rodset, list of found
     start = Rodset(seed)
-    growth = start.growth
-    tol_scaled = (growth - 1) * (1 - tol)
+    base = start.coefs
     found = []
     
-    # search through everything with maxcount or fewer rods
-    # with all rods of length <= maxlen
-    # first candidate
-    candlist = [1, 1]
+    # generate list of possibilities to use
+    candlist = it.product(it.combinations(range(1, maxlen + 1), setlim),
+                          it.product(range(1, maxcount + 1), repeat = setlim),
+                          it.product([-1, 1], repeat = setlim))
+    total = math.comb(maxlen, setlim) * (maxcount**setlim) * (2**setlim)
+    
+    # search everything
     try:
-        while True:
-            # find growthrate
-            counts = Rodset.spotcon(candlist)
-            coeffs = \
-                [-counts[x + 1] for x in range(max(counts.keys()))][::-1] + [1]
-            candgrowth = max(np.round(np.abs(polyroots(coeffs)), 10))
-            diff = growth - candgrowth
+        for info in tqdm(candlist, total = total):
+            cand = [0] * (info[0][-1] + 1)
+            for i in range(setlim):
+                cand[info[0][-1] - info[0][i]] = info[1][i] * info[2][i]
+            cand[-1] = 1
             
-            # debugging
             if tester:
-                print(candlist)
-                print('growth:', growth, ', candgrowth:', candgrowth)
+                print(info, cand)
             
-            # add to list if the current candidate matches
-            if diff == 0:
-                found.append(candlist.copy())
-                # try a set with a larger rod
-                candlist[-1] += 1
-            
-            # if cand growth is too small
-            elif diff > 0:
-                # if possible, add a rod
-                if maxcount > len(candlist):
-                    candlist.append(candlist[-1])
-                # if rod limit has been reached, stop
-                else:
-                    # stop if all rods are the same
-                    if len(set(candlist)) == 1:
-                        if tune:
-                            print('reached max identical set')
-                        break
-                    # skip to next if a rod is too large
-                    if any([x >= maxlen for x in candlist]):
-                        maxind = candlist.index(maxlen)
-                        if maxind == 0:
-                            if tune:
-                                print('reached full max rods')
-                            break
-                        elif maxind == 1:
-                            candlist = [candlist[0] + 1, candlist[0] + 1]
-                        else:
-                            candlist[maxind - 1] += 1
-                            candlist = candlist[:maxind]
-                    # skip to next if the difference is too much
-                    elif diff > tol_scaled:
-                        if tune:
-                            print('reached tolerance')
-                        break
-                    else:
-                        candlist[-2] += 1
-                        candlist = candlist[:-1]
-                        
-            # if cand growth is too large
-            elif diff < 0:
-                candlist[-1] += 1
+            if all(np.polydiv(cand, base)[1] == 0):
+                cand.pop(-1)
+                rods = {}
+                for i in range(len(cand)):
+                    rods[len(cand) - i] = cand[i] * -1
+                    
+                found.append(Rodset.spotcon(rods))
                 
-                # skip to next if there are too many kinds
-                if len(set(candlist)) > setlim:
-                    candlist = [candlist[0] + 1, candlist[0] + 1]
-    except:
+    except KeyboardInterrupt:
+        print('manual interrupt.')
         return found
             
     return found
@@ -345,7 +326,24 @@ def everything(maxcount, maxlen, path):
     return
 
 
-
+# debbie request - twos
+import pandas as pd
+def twos(path, seed, maxcount, maxlen, setlim = 2):
+    ''' takes:
+            path - path to text file to save the data
+            seed - base rod set to match to
+            maxcount - max number of each type of rod in set
+            maxlen - the largest rod length (abs)
+            setlim - number of unique rod lengths (default 2)
+        returns: none
+        
+        saves sets with two kinds of rods.
+    '''
+    
+    final = pd.DataFrame({'rods': twosearch(seed, maxcount, maxlen, setlim)})
+    final.to_csv(path, sep = '\t', index = False)
+    
+    
 
 
 

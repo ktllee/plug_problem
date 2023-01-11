@@ -75,7 +75,7 @@ class Rodset:
         '''
         
         # dict to list
-        if isinstance(rep, str):
+        if isinstance(rep, dict):
             converted = []
             for key in rep:
                 converted.extend([key if rep[key] > 0 else -key for \
@@ -205,9 +205,9 @@ class Rodset:
         # find which argument was given and fill others
         # also raise errors for invalid values and types
         if isinstance(represent, dict):
-            if represent.isnumeric():
-                counts = represent
+            if all(isinstance(x, int) for x in represent.keys()):
                 basic = self.spotcon(represent)
+                counts = self.spotcon(basic)
             else:
                 raise ValueError('string representation must be numeric')
         

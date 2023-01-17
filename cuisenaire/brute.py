@@ -289,9 +289,13 @@ def twosearch(seed, maxcount, maxlen = 50, setlim = 2):
                 cand.pop(-1)
                 rods = {}
                 for i in range(len(cand)):
-                    rods[len(cand) - i] = cand[i] * -1
+                    if cand[i] != 0:
+                        if cand[i] < 0:
+                            rods[len(cand) - i] = cand[i] * -1
+                        else:
+                            rods[(len(cand) - i) * -1] = cand[i]
                     
-                found.append(Rodset.spotcon(rods))
+                found.append(rods)
                 
     except KeyboardInterrupt:
         print('manual interrupt.')
@@ -343,7 +347,7 @@ def twos(path, seed, maxcount, maxlen, setlim = 2):
     final = pd.DataFrame({'rods': twosearch(seed, maxcount, maxlen, setlim)})
     final.to_csv(path, sep = '\t', index = False)
     
-    
+        
 
 
 

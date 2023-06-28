@@ -1,43 +1,46 @@
 # ui
-# contained in single fluidPage
 fluidPage(
   
   # overall title
-  titlePanel('Comparing Rod Sets'),
+  # titlePanel('Trees??'),
+  br(),
   
-  # select rods 1
+  # select rods
   textInput(
-    'rods1',
-    'Base rod lengths',
-    width = '90%',
-    placeholder = 'Enter values separated by commas...'),
+    'rods',
+    'Rod Lengths',
+    width = '100%',
+    placeholder = 
+      'Enter values separated by commas.  Format antirods as -{length}.'),
+  br(),
   
-  # select rods 2
-  textInput(
-    'rods2',
-    'Base rod lengths',
-    width = '90%',
-    placeholder = 'Enter values separated by commas...'),
+  # debug rod entry
+  HTML('[DEBUG] Rods: '),
+  textOutput('rods'),
+  br(),
   
-  # select rods 3
-  textInput(
-    'rods3',
-    'Base rod lengths',
-    width = '90%',
-    placeholder = 'Enter values separated by commas...'),
+  # # polynomial
+  # HTML('Full Polynomial: '),
+  # textOutput('fullpoly'),
+  # br(),
+  # HTML('Factored Polynomial: '),
+  # textOutput('facpoly'),
+  # br(),
   
-  # select rods 4
-  textInput(
-    'rods4',
-    'Base rod lengths',
-    width = '90%',
-    placeholder = 'Enter values separated by commas...'),
+  # tree
+  HTML('Select a node then click below to expand or prune.'),
+  br(),
+  actionButton('expand', 'Expand Leaf'),
+  actionButton('prune', 'Prune Lower Leaves'),
+  br(),
+  span(textOutput('misaction'), style = "color:red"),
+  visNetworkOutput('tree'),
+  br(),
   
-  # select rods 5
-  textInput(
-    'rods5',
-    'Base rod lengths',
-    width = '90%',
-    placeholder = 'Enter values separated by commas...')
-  
+  # debug nodes and edges
+  HTML('[DEBUG] Nodes: '),
+  tableOutput('nodes'),
+  br(),
+  HTML('[DEBUG] Edges:'),
+  tableOutput('edges')
 )

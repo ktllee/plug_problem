@@ -4,6 +4,8 @@ See [here](https://www.cs.umb.edu/~eb/plugs/) for more information.
 
 This puzzle was inspired by the question ["Number of ways to arrange pairs of integers with distance constraint"](http://math.stackexchange.com/questions/4124452/number-of-ways-to-arrange-pairs-of-integers-with-distance-constraint) on StackExchange Math.
 
+Note that most of the research/exploration is currently focused on trains of Cuisenaire rods.  Code relating to that research is in the [`cuisenaire`](/cuisenaire) directory.
+
 ## Current Definitions
 
 + Plug - an object with connected prongs and gaps, where prongs can take up spaces in a strip
@@ -19,27 +21,16 @@ This puzzle was inspired by the question ["Number of ways to arrange pairs of in
 	+ thickness - total number of plugs bridging a space between slots
 + Solutions are considered those arrangements of plugs that fill all slots of a given strip.
 
+## Directories
 
-## Organization
+[`cuisenaire`](/cuisenaire) contains code related to research into trains of Cuisenaire rods (equivalent to plugs completely full of prongs).
 
-### Directories
+[`other`](/other) contains one-off side projects.
 
-[`documentation`](/documentation) contains more formal documentation in the form of [LaTeX document(s)](https://www.overleaf.com/read/fhqqdqyrnhrd).
+[`plugs`](/plugs) contains code related to research into pronged plugs, as described above.
 
 [`pseudocode`](/pseudocode) contains pseudocode and general brainstorming.
 
 [`solutions`](/solutions) contains lists of solutions for different set of plugs.
 
 [`unused`](/unused) contains code that has been integrated into active code and which no longer need be used.
-
-### Active Scripts
-
-`flex_solver.py` is code to recursively solve for valid arrangements given types of plugs and a total length, as well as an optional plug count.  **Likely functional.  In Progress.**
-
-`count_solver.py` is code to recursively solve for valid arrangements given types of plugs and a total number of plugs.  **In Progress.**
-
-`overview_solver.py` is code to quickly show a table of the number of total and prime solutions given a dictionary of plugs. **Functional.**
-
-`plug_class.py` contains the Plug class.  **Functional.**
-
-`strip_class.py` contains the Strip class. **Functional.**

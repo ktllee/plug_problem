@@ -2,9 +2,11 @@
 library(shiny)
 library(tidyverse)
 library(reticulate)
+library(visNetwork)
 
-# python modules
-py_install(c('numpy', 'sympy'))
+# # python modules
+# py_install(c('numpy', 'sympy'))
 
-# source rods
-source_python('rods_r.py')
+# # source Rodset funcs
+# source_python('rods_r.py')
+

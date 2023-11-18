@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-last modified: apr 20, 2023
+last modified: 06-29-2023
 
 @author: katie
 
 description:
     functions from class for rod sets made R-friendly
+    class initialization transformed into functions for polynomials.
     
     the Rodset class contains defining information for a group of rods.
     

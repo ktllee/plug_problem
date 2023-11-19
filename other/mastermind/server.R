@@ -61,14 +61,14 @@ function(input, output, session) {
     feedback$group4 <- match_set(input$group4, set$set)
     
     # as a whole
-    guess <- list(input$group1, input$group2, input$group3, input$group4)
+    guess <- list(input$group1, input$group2, input$group3, input$group4, NULL)
+    # feedback$debug <- guess
     guess <- lapply(guess[-which(sapply(guess, is.null))], sort)
     correct <- 
       c(feedback$group1, feedback$group2, feedback$group3, feedback$group4)
     correct <- paste(correct[correct != ' '], collapse = ', ')
     new_feed <- paste(stringify(guess), "->", correct)
     feedback$history <- paste(feedback$history, new_feed, sep = "\n")
-    feedback$debug <- stringify(guess)
   })
   
   ##### outputs

@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-last modified: 2024-10-02
+last modified: 2025-01-20
 
 @author: katie
 
 description:
     for finding patterns in recursions
+    
+next: make it work for larger max(R).
 """
+
+from tqdm import tqdm
 
 # sequence finder
 def seq_gen(seed, n):
@@ -49,7 +53,7 @@ def seq_search(seed = [2,3], maxn = 100):
             
         returns:
             list of lists with entries:   
-            [(x, f(x)), (x-1, f(x-1)), (x-b, f(x-b)), (x-b-1, f(x-b-1))]
+            [(x, f(x)), (x-b, f(x-b))]
             
             where f(x)/f(x-b) = f(x-1)/f(x-b-1) and
             quotients have no remainder.
@@ -57,20 +61,42 @@ def seq_search(seed = [2,3], maxn = 100):
     # get the sequence
     seq = seq_gen(seed, maxn)
     
+    # layers of requirements
+    r = max(seed) - 1
+    
     # check through for each term
     final = []
-    for i in range(1, maxn):
-        
-        # find any even divisors
-        rems = [False if x == 0 else (seq[i] % x) == 0 for x in seq[:i]]
+    try:
+        for i in tqdm(range(1, maxn)):
             
-        # check through for even divisors right below
-        xbs = [i for i, x in enumerate(rems) if x]
-        for j in xbs:
-            if (j == 0) or (seq[j - 1] == 0):
-                continue
-            if (seq[i - 1] / seq[j - 1]) == (seq[i] / seq[j]):
-                final.append([(k, seq[k]) for k in [i, i-1, j, j-1]])
+            # find any even divisors
+            rems = [False if x == 0 else (seq[i] % x) == 0 for x in seq[:i]]
+                
+            # indices of even divisors
+            xbs = [i for i, x in enumerate(rems) if (x and (i >= r))]
+            for j in xbs:
+                # no 0s
+                if any([seq[j - k] == 0 for k in range(r)]):
+                    continue
+                
+                # check through for even divisors, up to r below
+                good = True
+                for k in range(r):
+                    # using integer division to avoid float limits
+                    if  (seq[i - k] % seq[j - k] != 0) or \
+                        (seq[i - k] // seq[j - k]) != (seq[i] // seq[j]):
+                            good = False
+                            break
+                
+                # add remaining good ones to final
+                if good:
+                    # send back x, f(x) and x-b, f(x-b)
+                    # note, can add others back by adding to [i, j]
+                    final.append([[i+1, i-j]] + [(k, seq[k]) for k in [i, j]])
+                
+    except KeyboardInterrupt:
+         print('manual interrupt.')
+         return final
         
     return final
 

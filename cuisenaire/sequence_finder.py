@@ -53,7 +53,7 @@ def seq_search(seed = [2,3], maxn = 100):
             
         returns:
             list of lists with entries:   
-            [(x, f(x)), (x-b, f(x-b))]
+            [[rodset], (x, f(x)), (x-b, f(x-b))]
             
             where f(x)/f(x-b) = f(x-1)/f(x-b-1) and
             quotients have no remainder.
@@ -62,7 +62,7 @@ def seq_search(seed = [2,3], maxn = 100):
     seq = seq_gen(seed, maxn)
     
     # layers of requirements
-    r = max(seed) - 1
+    r = max([abs(x) for x in seed]) - 1
     
     # check through for each term
     final = []

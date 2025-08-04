@@ -126,7 +126,7 @@ def seq_search(seed = [2,3], maxn = 100, verbose = True):
 # uses
 
 # check all combinations of two rods up to length 5
-def two_search(path = '/Users/katie/Downloads/rods.txt', maxlen = 5):
+def two_search(path = '/Users/katie/Downloads/rods.txt', maxlen = 6):
     x = it.product(it.combinations(range(1, maxlen), 2), [1,-1], [1,-1])
     for r, a, b in x:
         
@@ -150,6 +150,13 @@ def multi_two_search(path = '/Users/katie/Downloads/rods.txt'):
         
         rods = [r[0] * a] * s + [r[1] * b] * t
         res = seq_search(rods, 1000, verbose = False)
+        
+        if len(res) > 100:
+            res = res[:10]
+            res.append('... many more omitted')
+        elif len(res) > 10:
+            res = res[:10]
+            res.append('... a few more omitted')
         
         rodlist = {r[0]: s * a, r[1]: t * b}
         

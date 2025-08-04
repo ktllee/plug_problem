@@ -74,10 +74,10 @@ def seq_search(seed = [2,3], maxn = 100, verbose = True):
             
             # find any even divisors
             if seq[i] == 0:
-                xbs = range(maxn)
+                xbs = range(i+1, maxn)
             else:
-                rems = [all((x != 0, (x % seq[i]) == 0)) for x in seq[i:-r]]
-                xbs = [y + i for y, x in enumerate(rems) if x]
+                rems = [all((x != 0, (x % seq[i]) == 0)) for x in seq[i+1:-r]]
+                xbs = [y+i+1 for y, x in enumerate(rems) if x]
             
             # check through the even divisors
             for j in xbs:
@@ -145,7 +145,7 @@ def two_search(path = '/Users/katie/Downloads/rods.txt', maxlen = 6):
 
 # check a bunch of combinations of naryana and padovan
 def multi_two_search(path = '/Users/katie/Downloads/rods.txt'):
-    x = it.product(([2,3], [1,3]), range(1,5), range(1,5), [1,-1], [1,-1])
+    x = it.product(([2,3], [1,3]), range(1,6), range(1,6), [1,-1], [1,-1])
     for r, s, t, a, b in x:
         
         rods = [r[0] * a] * s + [r[1] * b] * t
